@@ -103,7 +103,29 @@ export default function IntroAnimation() {
             const animFrames = Array.from({ length: 39 }, (_, i) => `/assets/logo-animation/${i + 1}.webp`);
 
             let loadedCount = 0;
-            const total = criticalImages.length + 1 + animFrames.length; // +1 for GLB
+            const total = criticalImages.length + animFrames.length;
+
+            const updateProgress = () => {
+                loadedCount++;
+                const newProgress = Math.round((loadedCount / total) * 100);
+                setProgress(newProgress);
+            };
+
+            const loadImage = (src: string) => {
+                return new Promise<void>((resolve) => {
+                    const img = new Image();
+                    img.src = src;
+                    img.onload = () => {
+                        updateProgress();
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        console.error(`Failed to preload image: ${src}`);
+                        updateProgress();
+                        resolve();
+                    };
+                });
+            };
 
             // 2. Load Critical First (Parallel)
             await Promise.all(criticalImages.map(src => loadImage(src)));
