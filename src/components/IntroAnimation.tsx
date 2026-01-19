@@ -5,7 +5,6 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useSc
 import { useState, useEffect, useRef } from 'react';
 import Navigation from './Navigation';
 import Scene3D from './Scene3D';
-import DebugOverlay from './DebugOverlay';
 
 export default function IntroAnimation() {
     const [loading, setLoading] = useState(true);
@@ -526,8 +525,7 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
                 </AnimatePresence>
             </motion.div>
 
-            {/* EMERGENCY DEBUG OVERLAY */}
-            <DebugOverlay />
+            {/* EMERGENCY DEBUG OVERLAY REMOVED - Promoted to Main Scene */}
         </div>
     );
 };
