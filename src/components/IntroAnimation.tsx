@@ -143,151 +143,11 @@ export default function IntroAnimation() {
         }
     }, [progress]);
 
-    return (
-        <div className={`relative z-0 w-full bg-[#050505] ${loading ? 'h-screen overflow-hidden' : 'min-h-[200vh]'}`}>
-
-            {/* 
-                3D SCENE (THE GATE) - SANDWICHED LAYER 
-                Placed here to logically sit between background and foreground in JSX if Z-index allows.
-                Using z-index props in Scene3D wrapper: z-[-25].
-                Mountain is z-[-40]. Volcano is z-[-20].
-                Perfect spot.
-             */}
-            {!loading && <Scene3D zIndex={-15} />}
-
-            <div className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center">
-
-                {/* Base Background Color */}
-                <div className="absolute inset-0 -z-[100] bg-[#050505]" />
-
-                {/* Grainy Gradient */}
-                <div className="absolute inset-0 z-[100] pointer-events-none mix-blend-overlay opacity-20">
-                    <div
-                        className="absolute inset-0 bg-repeat opacity-50"
-                        style={{ backgroundImage: 'url(/assets/noise.png)', backgroundSize: '200px' }}
-                    />
-                </div>
-
-                {/* HEADER */}
+                {/* PARALLAX LAYERS (Back to Front) - Positive Z-Indexes */}
+                
+                {/* 1. Sky (z-10) */}
                 <motion.div
-                    className="fixed top-0 left-0 w-full z-[100] flex justify-center items-start pt-0 md:pt-0 pointer-events-none"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1.0, delay: 0.5 }}
-                >
-                    <div className="relative w-full flex justify-center items-center">
-                        <div className="relative w-[180px] h-[70px] md:w-[150px] md:h-[75px] flex items-center justify-center">
-                            <motion.div
-                                className="absolute inset-0 flex items-center justify-center pt-0 md:pt-0"
-                                animate={!loading ? { opacity: 1, y: 0 } : { opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 0 }}
-                            >
-                                <img src="/assets/logo-text.svg" alt="Esat Can Travel" className="w-full h-full object-contain z-10 opacity-100" />
-                            </motion.div>
-                        </div>
-                        {isMobile && !loading && (
-                            <motion.div
-                                className="absolute right-4 top-4 pointer-events-auto mix-blend-difference text-white"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 0.5 }}
-                            >
-                                <div onClick={() => setMenuOpen(true)} className="cursor-pointer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                                    </svg>
-                                </div>
-                            </motion.div>
-                        )}
-                    </div>
-                </motion.div>
-
-                {/* Loading / Transition Logo */}
-                <motion.div
-                    className="fixed inset-0 z-[101] pointer-events-none"
-                >
-                    <motion.div
-                        className="absolute left-1/2 flex items-center justify-center pointer-events-auto" // Enable pointer for hover
-                        initial={{ top: '50%', y: '-50%', x: '-50%', width: '300px', height: '300px' }} // FIXED START SIZE
-                        animate={!loading
-                            ? {
-                                top: '4%', // Adjusted: Up from 12%, close to top (but not 0%).
-                                y: '0%', 
-                                width: isMobile ? '90px' : '75px',
-                                height: isMobile ? '35px' : '38px',
-                                left: '50%', 
-                                x: '-50%',
-                            }
-                            : { top: '50%', y: '-50%', x: '-50%', width: isMobile ? '180px' : '300px', height: isMobile ? '180px' : '300px' }
-                        }
-                        transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-                        
-                        // HOVER ANIMATION LOGIC
-                        onMouseEnter={() => {
-                             // This requires state, best to extract this Logo component or use local ref/state if possible.
-                             // Implementing Frame Animation Component below to handle this cleanly.
-                        }}
-                    >
-                       <LogoAnimator loading={loading} progress={progress} isMobile={isMobile} />
-                    </motion.div>
-                </motion.div>
-
-                {/* Menu Overlay */}
-                <AnimatePresence>
-                    {menuOpen && (
-                        <motion.div
-                            className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center pointer-events-auto"
-                            initial={{ opacity: 0, y: '-100%' }}
-                            animate={{ opacity: 1, y: '0%' }}
-                            exit={{ opacity: 0, y: '-100%' }}
-                            transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
-                        >
-                            <div className="absolute top-8 right-8 cursor-pointer text-white p-2" onClick={() => setMenuOpen(false)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </div>
-                            <div className="flex flex-col gap-8 text-center">
-                                {["Beaches", "Volcanoes", "Animals", "Culture", "Gastronomy", "Islands"].map((item, i) => (
-                                    <motion.div
-                                        key={item}
-                                        initial={{ opacity: 0, y: 40 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.2 + (i * 0.1), duration: 0.5 }}
-                                        className="text-4xl font-serif text-[#E5E0D8] cursor-pointer hover:text-orange-500 transition-colors"
-                                        onClick={() => setMenuOpen(false)}
-                                    >
-                                        {item}
-                                    </motion.div>
-                                ))}
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {!loading && (
-                    <motion.div
-                        className="absolute z-[90] pointer-events-auto"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 1.0, delay: 2.8 }}
-                        style={{
-                            top: navTop,
-                            left: navLeft,
-                            x: navTranslateX,
-                            scale: navScale,
-                            transformOrigin: isMobile ? "top left" : "top left",
-                            opacity: isMobile ? opacityScrollText : 1
-                        }}
-                    >
-                        <Navigation isMobile={isMobile} />
-                    </motion.div>
-                )}
-
-
-                {/* PARALLAX LAYERS (Back to Front) */}
-                {/* 5. Sky (z-50) */}
-                <motion.div
-                    className="absolute inset-[-5%] w-[110%] h-[110%] -z-50"
+                    className="absolute inset-[-5%] w-[110%] h-[110%] z-10"
                     style={{ x: xSky, y: ySky }}
                     initial={{ scale: 1.1 }}
                     animate={{ scale: !loading ? 1.0 : 1.1 }}
@@ -296,9 +156,9 @@ export default function IntroAnimation() {
                     <img src="/assets/hero/bg.webp" className="w-full h-full object-cover opacity-80" alt="Background Sky" />
                 </motion.div>
 
-                {/* 4. Mountains (z-40) */}
+                {/* 2. Mountains (z-20) */}
                 <motion.div
-                    className="absolute inset-[-5%] w-[110%] h-[110%] -z-40"
+                    className="absolute inset-[-5%] w-[110%] h-[110%] z-20"
                     style={{ x: xMountain, y: yMountain }}
                     initial={{ y: 30, opacity: 0 }}
                     animate={{ y: !loading ? 0 : 30, opacity: !loading ? 1 : 0 }}
@@ -307,9 +167,59 @@ export default function IntroAnimation() {
                     <img src="/assets/hero/mountains_back.webp" className="w-full h-full object-cover transform scale-125 -translate-y-[15%] md:scale-100 md:translate-y-0 origin-center" alt="Mountain Back" />
                 </motion.div>
 
-                {/* Text (z-50 but constrained) */}
+                {/* 3. Volcano (z-30) */}
                 <motion.div
-                    className="absolute inset-0 flex flex-col items-start justify-end pl-[5%] pb-[10%] md:pb-[5%] z-50 pointer-events-none"
+                    className="absolute inset-[-5%] w-[110%] h-[110%] z-30"
+                    style={{ x: xVolcano, y: yVolcano }}
+                    initial={{ scale: 1.1, opacity: 0 }}
+                    animate={{ scale: !loading ? 1 : 1.1, opacity: !loading ? 1 : 0 }}
+                    transition={{ duration: 2.6, delay: 1.6, ease: "easeOut" }}
+                >
+                    <img src="/assets/hero/volcano-main.webp" className="w-full h-full object-cover object-[70%] md:object-center" alt="Volcano Main" />
+                    <motion.div
+                        className="absolute top-[40%] left-[50%] w-[100px] h-[100px] bg-orange-600 blur-[60px] rounded-full mix-blend-screen -z-10"
+                        animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.2, 1] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                        style={{ x: "-50%", y: "-50%" }}
+                    />
+                </motion.div>
+
+                {/* 4. THE GATE (3D) (z-40) */}
+                {!loading && (
+                    <motion.div
+                        className="absolute inset-[-5%] w-[110%] h-[110%] z-40"
+                        // Derive gate parallax as average of Volcano and Foreground
+                        style={{ 
+                            x: useTransform(springX, [-0.5, 0.5], [60, -60]), // Between 45 and 70
+                            y: useTransform(springY, [-0.5, 0.5], [25, -25])  // Between 20 and 30
+                        }}
+                    >
+                        <Scene3D zIndex={40} />
+                    </motion.div>
+                )}
+
+                {/* 5. Foreground (z-50) */}
+                <motion.div
+                    className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none"
+                    style={{
+                        x: xForeground,
+                        y: yForegroundCombined,
+                        scale: scaleForegroundCombined,
+                        opacity: opacityScrollForeground,
+                        filter: blurScrollForeground
+                    }}
+                    initial={{ scale: 1.15, opacity: 0 }}
+                    animate={{ scale: !loading ? 1.05 : 1.15, opacity: !loading ? 1 : 0 }}
+                    transition={{ duration: 3.0, delay: 1.8 }}
+                >
+                    <img src="/assets/hero/foreground.webp" className="w-full h-full object-cover transform scale-125 md:scale-100 origin-bottom" alt="Foreground" />
+                </motion.div>
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none z-[60]" />
+
+                 {/* Text (z-70) */}
+                 <motion.div
+                    className="absolute inset-0 flex flex-col items-start justify-end pl-[5%] pb-[10%] md:pb-[5%] z-[70] pointer-events-none"
                 >
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -326,44 +236,6 @@ export default function IntroAnimation() {
                         </motion.div>
                     </motion.div>
                 </motion.div>
-
-                {/* 3. TEMPLE LAYER REMOVED (Replaced by Scene3D z-25) */}
-
-                {/* 2. Volcano (z-20) */}
-                <motion.div
-                    className="absolute inset-[-5%] w-[110%] h-[110%] -z-20"
-                    style={{ x: xVolcano, y: yVolcano }}
-                    initial={{ scale: 1.1, opacity: 0 }}
-                    animate={{ scale: !loading ? 1 : 1.1, opacity: !loading ? 1 : 0 }}
-                    transition={{ duration: 2.6, delay: 1.6, ease: "easeOut" }}
-                >
-                    <img src="/assets/hero/volcano-main.webp" className="w-full h-full object-cover object-[70%] md:object-center" alt="Volcano Main" />
-                    <motion.div
-                        className="absolute top-[40%] left-[50%] w-[100px] h-[100px] bg-orange-600 blur-[60px] rounded-full mix-blend-screen -z-10"
-                        animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.2, 1] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        style={{ x: "-50%", y: "-50%" }}
-                    />
-                </motion.div>
-
-                {/* 1. Foreground (z-10) */}
-                <motion.div
-                    className="absolute inset-[-5%] w-[110%] h-[110%] -z-10 pointer-events-none"
-                    style={{
-                        x: xForeground,
-                        y: yForegroundCombined,
-                        scale: scaleForegroundCombined,
-                        opacity: opacityScrollForeground,
-                        filter: blurScrollForeground
-                    }}
-                    initial={{ scale: 1.15, opacity: 0 }}
-                    animate={{ scale: !loading ? 1.05 : 1.15, opacity: !loading ? 1 : 0 }}
-                    transition={{ duration: 3.0, delay: 1.8 }}
-                >
-                    <img src="/assets/hero/foreground.webp" className="w-full h-full object-cover transform scale-125 md:scale-100 origin-bottom" alt="Foreground" />
-                </motion.div>
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none -z-5" />
 
             </div>
             <div className="h-[100vh]" />
