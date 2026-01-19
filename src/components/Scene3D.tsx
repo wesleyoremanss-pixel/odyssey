@@ -5,20 +5,16 @@ import { Environment, OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
 import { Gate3D } from './Gate3D';
 
-export default function Scene3D({ zIndex = 5000 }: { zIndex?: number }) {
+export default function Scene3D({ zIndex = 0 }: { zIndex?: number }) {
     return (
-        // DEBUG MODE: Z-Index 5000 to force visibility over EVERYTHING
+        // Sandwiched Layer
+        // We pass z-index via prop to control layering
         <div className={`fixed inset-0 w-full h-full pointer-events-none`} style={{ zIndex }}>
             <Canvas
                 shadows
                 camera={{ position: [0, 0, 8], fov: 35 }}
                 gl={{ alpha: true, antialias: true }}
-                className="pointer-events-auto" // Enable events for OrbitControls
             >
-                {/* DEBUG TOOLS */}
-                <OrbitControls makeDefault />
-                <gridHelper args={[20, 20]} />
-                <axesHelper args={[5]} />
                 
                 <Suspense fallback={null}>
                     {/* LIGHTING RIG: Volcano Morning Match */}

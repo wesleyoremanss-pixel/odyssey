@@ -90,7 +90,7 @@ export default function IntroAnimation() {
     useEffect(() => {
         const loadAssets = async () => {
             // 1. Define Assets
-            const criticalAssets = [
+            const criticalImages = [
                 '/assets/logo-man.webp',
                 '/assets/logo-text.svg',
                 '/assets/noise.png',
@@ -99,10 +99,11 @@ export default function IntroAnimation() {
                 '/assets/hero/volcano-main.webp',
                 '/assets/hero/foreground.webp'
             ];
+            const glbAsset = '/assets/bali-gate.glb';
             const animFrames = Array.from({ length: 39 }, (_, i) => `/assets/logo-animation/${i + 1}.webp`);
 
             let loadedCount = 0;
-            const total = criticalAssets.length + animFrames.length;
+            const total = criticalImages.length + 1 + animFrames.length; // +1 for GLB
 
             const updateProgress = () => {
                 loadedCount++;
@@ -119,18 +120,36 @@ export default function IntroAnimation() {
                         resolve();
                     };
                     img.onerror = () => {
-                        console.error(`Failed to preload: ${src}`);
+                        console.error(`Failed to preload image: ${src}`);
                         updateProgress();
                         resolve();
                     };
                 });
             };
 
+            const loadGLB = (src: string) => {
+                return new Promise<void>((resolve) => {
+                    fetch(src)
+                        .then(res => {
+                            if (!res.ok) throw new Error('Network response was not ok');
+                            return res.blob();
+                        })
+                        .then(() => {
+                           updateProgress();
+                           resolve();
+                        })
+                        .catch((err) => {
+                            console.error(`Failed to preload GLB: ${src}`, err);
+                            updateProgress();
+                            resolve();
+                        });
+                });
+            };
+
             // 2. Load Critical First (Parallel)
-            await Promise.all(criticalAssets.map(src => loadImage(src)));
+            await Promise.all([...criticalImages.map(src => loadImage(src)), loadGLB(glbAsset)]);
 
             // 3. Load Animation Frames (Parallel, but after Critical)
-            // This prevents the 39 frames from clogging the network queue before the BG is ready.
             await Promise.all(animFrames.map(src => loadImage(src)));
         };
 
@@ -153,7 +172,7 @@ export default function IntroAnimation() {
                 Mountain is z-[-40]. Volcano is z-[-20].
                 Perfect spot.
              */}
-            {!loading && <Scene3D zIndex={5000} />}
+            {!loading && <Scene3D zIndex={-15} />}
 
             <div className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center">
 
