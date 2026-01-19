@@ -105,49 +105,8 @@ export default function IntroAnimation() {
             let loadedCount = 0;
             const total = criticalImages.length + 1 + animFrames.length; // +1 for GLB
 
-            const updateProgress = () => {
-                loadedCount++;
-                const newProgress = Math.round((loadedCount / total) * 100);
-                setProgress(newProgress);
-            };
-
-            const loadImage = (src: string) => {
-                return new Promise<void>((resolve) => {
-                    const img = new Image();
-                    img.src = src;
-                    img.onload = () => {
-                        updateProgress();
-                        resolve();
-                    };
-                    img.onerror = () => {
-                        console.error(`Failed to preload image: ${src}`);
-                        updateProgress();
-                        resolve();
-                    };
-                });
-            };
-
-            const loadGLB = (src: string) => {
-                return new Promise<void>((resolve) => {
-                    fetch(src)
-                        .then(res => {
-                            if (!res.ok) throw new Error('Network response was not ok');
-                            return res.blob();
-                        })
-                        .then(() => {
-                           updateProgress();
-                           resolve();
-                        })
-                        .catch((err) => {
-                            console.error(`Failed to preload GLB: ${src}`, err);
-                            updateProgress();
-                            resolve();
-                        });
-                });
-            };
-
             // 2. Load Critical First (Parallel)
-            await Promise.all([...criticalImages.map(src => loadImage(src)), loadGLB(glbAsset)]);
+            await Promise.all(criticalImages.map(src => loadImage(src)));
 
             // 3. Load Animation Frames (Parallel, but after Critical)
             await Promise.all(animFrames.map(src => loadImage(src)));
