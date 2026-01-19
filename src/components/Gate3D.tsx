@@ -30,21 +30,16 @@ export function Gate3D() {
         });
     }, [scene]);
 
-    // User requested static positioning
-    // Position: [-0.153, 1.410, 0.321]
-    // Scale: [0.218, 0.198, 0.278]
-    // Rotation: [-89.80, 0.00, -20.60] (Degrees)
+    // DEBUG MODE: RESET TO ORIGIN
+    // User requested "Hardest Checks"
+    // We remove all custom transforms to see if the model appears at 0,0,0
     
     return (
         <group 
             ref={gateRef} 
-            position={[-0.153, 1.410, 0.321]} 
-            scale={[0.218, 0.198, 0.278]} 
-            rotation={[
-                THREE.MathUtils.degToRad(-89.80), 
-                THREE.MathUtils.degToRad(0.00), 
-                THREE.MathUtils.degToRad(-20.60)
-            ]}
+            position={[0, 0, 0]} 
+            scale={[1, 1, 1]} 
+            rotation={[0, 0, 0]}
         >
             <primitive object={scene} />
             {/* DEBUG OBJECT: Red Box to verify position visibility */}
