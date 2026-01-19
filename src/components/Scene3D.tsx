@@ -1,7 +1,7 @@
 'use client';
 
 import { Canvas } from '@react-three/fiber';
-import { Environment, OrbitControls, Stage } from '@react-three/drei';
+import { Environment, OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
 import { Gate3D } from './Gate3D';
 
@@ -17,16 +17,16 @@ export default function Scene3D({ zIndex = 0 }: { zIndex?: number }) {
                 className="pointer-events-auto" // Enable interaction
             >
                 <Suspense fallback={null}>
-                    {/* 
-                        MIGRATED FROM DEBUG OVERLAY:
-                        Using <Stage> to ensure visibility since manual lighting/positioning was failing.
-                        adjustCamera={false} allows us to keep our own camera position logic eventually,
-                        but for now let's let Stage handle it to guarantee it shows up.
-                    */}
-                    <Stage environment="city" intensity={0.6}>
-                        <Gate3D />
-                    </Stage>
-                    <OrbitControls makeDefault />
+                    {/* Lighting Rig - Studio Match */}
+                    <ambientLight intensity={0.5} />
+                    <directionalLight position={[10, 10, 5]} intensity={2} />
+                    <Environment preset="city" />
+
+                    <Gate3D />
+                    
+                    {/* Optional: Keep OrbitControls for subtle parallax interaction if desired, 
+                        or remove for static feel. Keeping it enabled allows user to inspect. */}
+                     <OrbitControls enableZoom={false} enablePan={false} />
                 </Suspense>
             </Canvas>
         </div>
