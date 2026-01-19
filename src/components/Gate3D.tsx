@@ -10,31 +10,32 @@ export function Gate3D() {
     const { scene } = useGLTF('/assets/bali-gate.glb');
     const gateRef = useRef<THREE.Group>(null);
 
-    // Setup Materials for better lighting reception
+    // DEBUG LOGGING
+    useEffect(() => {
+        if (scene) {
+            console.log("✅ GLB LOADED SUCCESSFULLY", scene);
+        } else {
+            console.error("❌ GLB SCENE IS NULL");
+        }
+    }, [scene]);
+
+    // Setup Materials
     useEffect(() => {
         scene.traverse((child) => {
             if ((child as THREE.Mesh).isMesh) {
                 const mesh = child as THREE.Mesh;
                 const material = mesh.material as THREE.MeshStandardMaterial;
 
-                // Enhance material properties
-                material.transparent = false; // Solid object
+                material.transparent = false;
                 material.opacity = 1;
-                material.roughness = 0.7; // Stone-like
-                material.metalness = 0.1;
-
-                // Enable shadow casting/receiving
+                material.side = THREE.DoubleSide; // Ensure double side rendering
+                
                 mesh.castShadow = true;
                 mesh.receiveShadow = true;
             }
         });
     }, [scene]);
 
-    // User requested static positioning
-    // Position: [-0.153, 1.410, 0.321]
-    // Scale: [0.218, 0.198, 0.278]
-    // Rotation: [-89.80, 0.00, -20.60] (Degrees)
-    
     return (
         <group 
             ref={gateRef} 
@@ -47,6 +48,16 @@ export function Gate3D() {
             ]}
         >
             <primitive object={scene} />
+            
+            {/* 
+                DEBUG: FALLBACK RED BOX 
+                If you see this but NOT the gate -> The Gate is invisible/transparent/too small.
+                If you see NOTHING -> The scene/camera is broken.
+            */}
+            <mesh position={[0, 0, 0]}>
+                 <boxGeometry args={[5, 1, 1]} />
+                 <meshBasicMaterial color="red" wireframe />
+            </mesh>
         </group>
     );
 }
