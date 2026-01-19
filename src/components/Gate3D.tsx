@@ -45,7 +45,7 @@ export function Gate3D() {
         <group 
             ref={gateRef} 
             position={[2.452, -0.544, 0.168]} 
-            scale={[2.0, 2.0, 2.0]} 
+            scale={[1.1, 1.1, 1.1]} 
             rotation={[
                 THREE.MathUtils.degToRad(85.9), 
                 THREE.MathUtils.degToRad(29.5), 
