@@ -475,7 +475,7 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
                             scale: 1.8, 
                             top: '50%', 
                             y: '-50%', 
-                            x: '-42%', // Nudged further right (was -48%)
+                            x: '-40%', // Shifted right (was -42%)
                             width: isMobile ? '180px' : '300px', 
                             height: isMobile ? '180px' : '300px' 
                         }
