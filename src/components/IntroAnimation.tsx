@@ -153,7 +153,7 @@ export default function IntroAnimation() {
                 Mountain is z-[-40]. Volcano is z-[-20].
                 Perfect spot.
              */}
-            {!loading && <Scene3D zIndex={-15} />}
+            {!loading && <Scene3D zIndex={5000} />}
 
             <div className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center">
 
