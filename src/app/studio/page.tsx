@@ -28,21 +28,27 @@ export default function StudioPage() {
     const [rot, setRot] = useState({ x: -89.8, y: 0, z: -20.6 });
     const [scl, setScl] = useState({ v: 0.218 }); // Uniform scale for simplicity, or we can do 3 axes
 
+    // Toggle for foreground visibility to allow seeing behind it
+    const [showFg, setShowFg] = useState(true);
+
     return (
-        <div className="relative w-full h-screen bg-[#050505] overflow-hidden font-mono">
-            {/* BACKGROUND CONTEXT - Copied from IntroAnimation to give context */}
-            <div className="absolute inset-0 -z-50 pointer-events-none opacity-50">
+        <div className="relative w-full h-screen bg-black overflow-hidden font-mono">
+            {/* 1. LAYER: BACKGROUND (Sky + Volcano + Mountains) 
+                Z-Index: 0
+            */}
+            <div className="absolute inset-0 z-0 select-none pointer-events-none">
                  <img src="/assets/hero/bg.webp" className="absolute inset-0 w-full h-full object-cover" />
                  <img src="/assets/hero/mountains_back.webp" className="absolute inset-0 w-full h-full object-cover" />
                  <img src="/assets/hero/volcano-main.webp" className="absolute inset-0 w-full h-full object-cover" />
-                 <img src="/assets/hero/foreground.webp" className="absolute inset-0 w-full h-full object-cover z-10" />
             </div>
 
-            {/* STUDIO CANVAS */}
-            <div className="absolute inset-0 z-50">
+            {/* 2. LAYER: 3D CANVAS (The Gate)
+                Z-Index: 10
+            */}
+            <div className="absolute inset-0 z-10">
                 <Canvas shadows camera={{ position: [0, 0, 8], fov: 35 }}>
                     <Suspense fallback={null}>
-                        {/* We use standard lighting here to strictly test Position */}
+                        {/* Lighting to match scene */}
                         <ambientLight intensity={0.5} />
                         <directionalLight position={[10, 10, 5]} intensity={2} />
                         <Environment preset="city" />
@@ -53,16 +59,36 @@ export default function StudioPage() {
                             scale={[scl.v, scl.v, scl.v]} 
                         />
 
+                        {/* OrbitControls need to handle events through the foreground layer? 
+                            Actually, since FG is pointer-events-none, we are good.
+                        */}
                         <OrbitControls makeDefault />
                         <gridHelper args={[20, 20]} />
                         <axesHelper args={[5]} />
                     </Suspense>
                 </Canvas>
             </div>
+
+             {/* 3. LAYER: FOREGROUND (Plants)
+                Z-Index: 20
+                This sits ON TOP of the Gate.
+            */}
+            {showFg && (
+                <div className="absolute inset-0 z-20 select-none pointer-events-none">
+                    <img src="/assets/hero/foreground.webp" className="absolute inset-0 w-full h-full object-cover" />
+                </div>
+            )}
             
-            {/* CUSTOM CONTROLS (Replacing Leva) */}
+            {/* CUSTOM CONTROLS */}
             <div className="absolute top-4 right-4 bg-black/90 text-white p-6 rounded-xl w-[320px] z-[9999] border border-white/20 shadow-2xl overflow-y-auto max-h-[90vh]">
                 <h1 className="text-xl font-bold mb-4 text-orange-500 border-b border-orange-500/50 pb-2">3D Studio Control</h1>
+                
+                <div className="mb-4">
+                     <label className="flex items-center space-x-2 text-sm text-gray-300 cursor-pointer">
+                        <input type="checkbox" checked={showFg} onChange={(e) => setShowFg(e.target.checked)} />
+                        <span>Show Foreground (Plants)</span>
+                     </label>
+                </div>
                 
                 {/* POSITION */}
                 <div className="mb-6 space-y-3">
