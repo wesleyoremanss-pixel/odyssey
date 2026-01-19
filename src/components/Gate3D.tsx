@@ -47,6 +47,11 @@ export function Gate3D() {
             ]}
         >
             <primitive object={scene} />
+            {/* DEBUG OBJECT: Red Box to verify position visibility */}
+            <mesh>
+                 <boxGeometry args={[2, 2, 2]} />
+                 <meshStandardMaterial color="red" wireframe />
+            </mesh>
         </group>
     );
 }

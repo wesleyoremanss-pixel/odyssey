@@ -464,18 +464,18 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
                     !loading
                         ? {
                             scale: 1.4,
-                            top: '-6%', // Adjusted: Up further from -4% as requested.
+                            top: '-6%', 
                             y: '0%', 
                             width: isMobile ? '90px' : '75px',
                             height: isMobile ? '35px' : '38px',
                             left: '50%', 
-                            x: '-50%',
+                            x: '-50%', // Back to center for final state
                         }
                         : { 
                             scale: 1.8, 
                             top: '50%', 
                             y: '-50%', 
-                            x: '-48%', // Nudged right (was -50%) to fix visual off-center.
+                            x: '-42%', // Nudged further right (was -48%)
                             width: isMobile ? '180px' : '300px', 
                             height: isMobile ? '180px' : '300px' 
                         }
