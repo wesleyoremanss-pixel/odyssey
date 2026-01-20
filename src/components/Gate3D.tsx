@@ -5,13 +5,15 @@ import { useFrame } from '@react-three/fiber';
 import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
-export function Gate3D({ scrollProgress }: { scrollProgress?: any }) {
+export function Gate3D({ scrollProgress, isMobile }: { scrollProgress?: any, isMobile?: boolean }) {
     // Load standard GLB (Recovered)
     const { scene } = useGLTF('/assets/bali-gate.glb');
     const gateRef = useRef<THREE.Group>(null);
 
     // Initial transforms
-    const initialPos = new THREE.Vector3(2.452, -1.5, 0.168); // Y: -1.5 (lowered)
+    // Mobile: Closer to center (1.2 instead of 2.452)
+    const initialX = isMobile ? 1.2 : 2.452;
+    const initialPos = new THREE.Vector3(initialX, -1.5, 0.168);
     const initialRot = new THREE.Euler(0, THREE.MathUtils.degToRad(-20), 0);
     const initialScale = new THREE.Vector3(0.8, 0.8, 0.8);
 
@@ -32,8 +34,12 @@ export function Gate3D({ scrollProgress }: { scrollProgress?: any }) {
         const targetZ = initialPos.z + (12 * ease);
         gateRef.current.position.z = targetZ;
 
-        // 3. Move X slightly to center as it zooms
-        const targetX = initialPos.x * (1 - ease); // tends to 0
+        // 3. Move X to center (0)
+        // CRITICAL FIX: Use 'p' (linear) or 'ease' but ensure it reaches 0.
+        // If we use (1-p), it moves linearly to center.
+        // If we use (1-ease), it stays on right longer then snaps center.
+        // The user wants it CENTERING as it moves. Linear 'p' is safer for alignment.
+        const targetX = initialPos.x * (1 - p);
         gateRef.current.position.x = targetX;
 
     });

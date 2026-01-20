@@ -361,7 +361,7 @@ export default function IntroAnimation() {
                         }}
                     >
                         {/* PASS SCROLL PROGRESS TO 3D SCENE */}
-                        <Scene3D zIndex={40} scrollProgress={gateProgress} />
+                        <Scene3D zIndex={40} scrollProgress={gateProgress} isMobile={isMobile} />
                     </motion.div>
                 )}
 

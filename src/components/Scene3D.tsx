@@ -5,7 +5,7 @@ import { Environment, OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
 import { Gate3D } from './Gate3D';
 
-export default function Scene3D({ zIndex = 0, scrollProgress }: { zIndex?: number, scrollProgress?: any }) {
+export default function Scene3D({ zIndex = 0, scrollProgress, isMobile }: { zIndex?: number, scrollProgress?: any, isMobile?: boolean }) {
     return (
         // Sandwiched Layer
         // Position handled by parent motion.div
@@ -33,7 +33,7 @@ export default function Scene3D({ zIndex = 0, scrollProgress }: { zIndex?: numbe
                     />
                     <Environment preset="sunset" />
 
-                    <Gate3D scrollProgress={scrollProgress} />
+                    <Gate3D scrollProgress={scrollProgress} isMobile={isMobile} />
 
                     {/* Optional: Keep OrbitControls for subtle parallax interaction if desired, 
                         or remove for static feel. Keeping it enabled allows user to inspect. */}
