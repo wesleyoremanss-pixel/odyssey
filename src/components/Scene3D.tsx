@@ -5,7 +5,7 @@ import { Environment, OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
 import { Gate3D } from './Gate3D';
 
-export default function Scene3D({ zIndex = 0 }: { zIndex?: number }) {
+export default function Scene3D({ zIndex = 0, scrollProgress }: { zIndex?: number, scrollProgress?: any }) {
     return (
         // Sandwiched Layer
         // Position handled by parent motion.div
@@ -19,25 +19,25 @@ export default function Scene3D({ zIndex = 0 }: { zIndex?: number }) {
                 <Suspense fallback={null}>
                     {/* Lighting Rig - Sunset / Golden Hour Match */}
                     <ambientLight intensity={1.5} color="#ffdcb4" /> {/* Warm ambient to lift shadows */}
-                    <directionalLight 
-                        position={[5, 4, 3]} 
-                        intensity={3.5} 
+                    <directionalLight
+                        position={[5, 4, 3]}
+                        intensity={3.5}
                         color="#ff9b50" // Strong orange sunlight
-                        castShadow 
+                        castShadow
                     />
-                    <spotLight 
-                        position={[-5, 5, 5]} 
-                        intensity={4} 
+                    <spotLight
+                        position={[-5, 5, 5]}
+                        intensity={4}
                         color="#ff6b00"  // Secondary sunset rim light from left
-                        angle={0.5} 
+                        angle={0.5}
                     />
                     <Environment preset="sunset" />
 
-                    <Gate3D />
-                    
+                    <Gate3D scrollProgress={scrollProgress} />
+
                     {/* Optional: Keep OrbitControls for subtle parallax interaction if desired, 
                         or remove for static feel. Keeping it enabled allows user to inspect. */}
-                     <OrbitControls enableZoom={false} enablePan={false} />
+                    <OrbitControls enableZoom={false} enablePan={false} />
                 </Suspense>
             </Canvas>
         </div>

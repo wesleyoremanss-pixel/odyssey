@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useSc
 import { useState, useEffect, useRef } from 'react';
 import Navigation from './Navigation';
 import Scene3D from './Scene3D';
+import ExplosionTransition from './ExplosionTransition';
 
 export default function IntroAnimation() {
     const [loading, setLoading] = useState(true);
@@ -74,6 +75,28 @@ export default function IntroAnimation() {
         [scaleScrollForeground],
         ([scaleScroll]: any[]) => (scaleScroll as number)
     );
+
+    // Gate Interaction Progress (0 to 1 over 800px scroll)
+    const gateProgress = useTransform(scrollY, [0, 800], [0, 1]);
+
+    // Volcano Blur (Sync with scroll)
+    const blurVolcano = useTransform(scrollY, [0, 600], ["blur(0px)", "blur(12px)"]);
+    const opacityVolcano = useTransform(scrollY, [0, 600], [1, 0.4]);
+
+    // Explosion Trigger
+    const [triggerExplosion, setTriggerExplosion] = useState(false);
+
+    // Use motion value listener to trigger state
+    useEffect(() => {
+        return gateProgress.on("change", (latest) => {
+            if (latest > 0.95 && !triggerExplosion) {
+                setTriggerExplosion(true);
+            } else if (latest < 0.8 && triggerExplosion) {
+                setTriggerExplosion(false);
+            }
+        });
+    }, [gateProgress, triggerExplosion]);
+
 
     // Gate Parallax Logic (Moved to Top Level)
     const xGate = useTransform(springX, [-0.5, 0.5], [60, -60]); // Between 45 and 70
@@ -151,7 +174,16 @@ export default function IntroAnimation() {
     return (
         <div className={`relative z-0 w-full bg-[#050505] ${loading ? 'h-screen overflow-hidden' : 'min-h-[200vh]'}`}>
 
-            <div className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center">
+            <ExplosionTransition trigger={triggerExplosion} />
+
+            <div className={`fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center ${triggerExplosion ? 'z-[90]' : 'z-0'}`}>
+
+                {/* Reveal Dark BG after explosion */}
+                <motion.div
+                    className="absolute inset-0 -z-[90] bg-[#020202]"
+                    style={{ opacity: triggerExplosion ? 1 : 0 }}
+                    transition={{ duration: 0.5 }}
+                />
 
                 {/* Base Background Color */}
                 <div className="absolute inset-0 -z-[100] bg-[#050505]" />
@@ -207,17 +239,17 @@ export default function IntroAnimation() {
                         animate={!loading
                             ? {
                                 top: '4%', // Adjusted: Up from 12%, close to top (but not 0%).
-                                y: '0%', 
+                                y: '0%',
                                 width: isMobile ? '90px' : '75px',
                                 height: isMobile ? '35px' : '38px',
-                                left: '50%', 
+                                left: '50%',
                                 x: '-50%',
                             }
                             : { top: '50%', y: '-50%', x: '-50%', width: isMobile ? '180px' : '300px', height: isMobile ? '180px' : '300px' }
                         }
                         transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
                     >
-                       <LogoAnimator loading={loading} progress={progress} isMobile={isMobile} />
+                        <LogoAnimator loading={loading} progress={progress} isMobile={isMobile} />
                     </motion.div>
                 </motion.div>
 
@@ -274,7 +306,7 @@ export default function IntroAnimation() {
                 )}
 
                 {/* PARALLAX LAYERS (Back to Front) - Positive Z-Indexes */}
-                
+
                 {/* 1. Sky (z-10) */}
                 <motion.div
                     className="absolute inset-[-5%] w-[110%] h-[110%] z-10"
@@ -296,9 +328,16 @@ export default function IntroAnimation() {
                 >
                     <img src="/assets/hero/mountains_back.webp" className="w-full h-full object-cover transform scale-125 -translate-y-[15%] md:scale-100 md:translate-y-0 origin-center" alt="Mountain Back" />
                 </motion.div>
+
+                {/* 3. Volcano (z-30) */}
                 <motion.div
                     className="absolute inset-[-5%] w-[110%] h-[110%] z-30"
-                    style={{ x: xVolcano, y: yVolcano }}
+                    style={{
+                        x: xVolcano,
+                        y: yVolcano,
+                        filter: blurVolcano,
+                        opacity: opacityVolcano
+                    }}
                     initial={{ scale: 1.1, opacity: 0 }}
                     animate={{ scale: !loading ? 1 : 1.1, opacity: !loading ? 1 : 0 }}
                     transition={{ duration: 2.6, delay: 1.6, ease: "easeOut" }}
@@ -316,12 +355,13 @@ export default function IntroAnimation() {
                 {!loading && (
                     <motion.div
                         className="absolute inset-[-5%] w-[110%] h-[110%] z-40"
-                        style={{ 
+                        style={{
                             x: xGate,
                             y: yGate
                         }}
                     >
-                        <Scene3D zIndex={40} />
+                        {/* PASS SCROLL PROGRESS TO 3D SCENE */}
+                        <Scene3D zIndex={40} scrollProgress={gateProgress} />
                     </motion.div>
                 )}
 
@@ -344,8 +384,8 @@ export default function IntroAnimation() {
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none z-[60]" />
 
-                 {/* Text (z-70) */}
-                 <motion.div
+                {/* Text (z-70) */}
+                <motion.div
                     className="absolute inset-0 flex flex-col items-start justify-end pl-[5%] pb-[10%] md:pb-[5%] z-[70] pointer-events-none"
                 >
                     <motion.div
@@ -365,7 +405,7 @@ export default function IntroAnimation() {
                 </motion.div>
 
             </div>
-            <div className="h-[100vh]" />
+            <div className="h-[200vh]" /> {/* Keep Scrollable Area */}
         </div>
     );
 }
@@ -379,7 +419,7 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
         let css = `@keyframes logoLoop {`;
         const totalFrames = 39;
         const totalSteps = (totalFrames * 2) - 2; // 76 steps (1->39->2)
-        
+
         for (let step = 0; step <= totalSteps; step++) {
             const percentage = (step / totalSteps) * 100;
             let frame;
@@ -390,7 +430,7 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
             }
             // Ensure frame is clamped
             if (frame < 1) frame = 1;
-            
+
             css += `
                 ${percentage}% { background-image: url('/assets/logo-animation/${frame}.webp'); }`;
         }
@@ -423,7 +463,7 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
     };
 
     return (
-        <div 
+        <div
             className="relative w-full h-full flex items-center justify-center pointer-events-auto"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -457,37 +497,37 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
                 }
             `}</style>
 
-             <motion.div
+            <motion.div
                 className="relative h-full w-auto aspect-[1/1]"
                 animate={
                     !loading
                         ? {
                             scale: 1.4,
-                            top: '-6%', 
-                            y: '0%', 
+                            top: '-6%',
+                            y: '0%',
                             width: isMobile ? '90px' : '75px',
                             height: isMobile ? '35px' : '38px',
-                            left: '50%', 
+                            left: '50%',
                             x: '-50%', // Back to center for final state
                         }
-                        : { 
-                            scale: 1.8, 
-                            top: '50%', 
-                            y: '-50%', 
+                        : {
+                            scale: 1.8,
+                            top: '50%',
+                            y: '-50%',
                             x: '-40%', // Shifted right (was -42%)
-                            width: isMobile ? '180px' : '300px', 
-                            height: isMobile ? '180px' : '300px' 
+                            width: isMobile ? '180px' : '300px',
+                            height: isMobile ? '180px' : '300px'
                         }
                 }
                 transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
             >
                 <div className="relative w-full h-full">
-                     {/* 1. GHOST LOGO (Background - always visible, low opacity) */}
+                    {/* 1. GHOST LOGO (Background - always visible, low opacity) */}
                     <motion.div className="absolute inset-0 opacity-20">
-                         <img src="/assets/logo-man.webp" alt="Ghost Logo" className="w-full h-full object-contain" />
+                        <img src="/assets/logo-man.webp" alt="Ghost Logo" className="w-full h-full object-contain" />
                     </motion.div>
 
-                     {/* 2. FILLING/ANIMATING LOGO (Foreground) */}
+                    {/* 2. FILLING/ANIMATING LOGO (Foreground) */}
                     <motion.div
                         className="absolute inset-0 overflow-hidden"
                         animate={{ clipPath: loading ? `inset(${100 - progress}% 0 0 0)` : 'inset(0% 0 0 0)' }}
@@ -500,12 +540,12 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
                             - Else (Idle): Show Static.
                         */}
                         {!loading && isPlaying ? (
-                             <div 
+                            <div
                                 className={`logo-anim ${shouldStop ? 'stopping' : 'playing'}`}
                                 onAnimationIteration={handleAnimationIteration}
-                             />
+                            />
                         ) : (
-                             <img src="/assets/logo-man.webp" className="w-full h-full object-contain" alt="Static" />
+                            <img src="/assets/logo-man.webp" className="w-full h-full object-contain" alt="Static" />
                         )}
                     </motion.div>
                 </div>

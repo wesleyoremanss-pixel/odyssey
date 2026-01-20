@@ -5,19 +5,38 @@ import { useFrame } from '@react-three/fiber';
 import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
-export function Gate3D() {
+export function Gate3D({ scrollProgress }: { scrollProgress?: any }) {
     // Load standard GLB (Recovered)
     const { scene } = useGLTF('/assets/bali-gate.glb');
     const gateRef = useRef<THREE.Group>(null);
 
-    // DEBUG LOGGING
-    useEffect(() => {
-        if (scene) {
-            console.log("✅ GLB LOADED SUCCESSFULLY", scene);
-        } else {
-            console.error("❌ GLB SCENE IS NULL");
-        }
-    }, [scene]);
+    // Initial transforms
+    const initialPos = new THREE.Vector3(2.452, -1.5, 0.168); // Y: -1.5 (lowered)
+    const initialRot = new THREE.Euler(0, THREE.MathUtils.degToRad(-20), 0);
+    const initialScale = new THREE.Vector3(0.8, 0.8, 0.8);
+
+    useFrame(() => {
+        if (!gateRef.current || !scrollProgress) return;
+
+        // easeInCubic for exponential zoom feel
+        const p = scrollProgress.get();
+        const ease = p * p * p;
+
+        // 1. Rotation: 0 to 360 (Right to Left)
+        // Start from initialRot.y (-20 deg) and add 360 * p
+        const targetRotY = initialRot.y + (Math.PI * 2 * ease);
+        gateRef.current.rotation.y = targetRotY;
+
+        // 2. Zoom / Position Z
+        // Move from 0.168 to +10 (Through Camera)
+        const targetZ = initialPos.z + (12 * ease);
+        gateRef.current.position.z = targetZ;
+
+        // 3. Move X slightly to center as it zooms
+        const targetX = initialPos.x * (1 - ease); // tends to 0
+        gateRef.current.position.x = targetX;
+
+    });
 
     // Setup Materials
     useEffect(() => {
@@ -28,29 +47,21 @@ export function Gate3D() {
 
                 material.transparent = false;
                 material.opacity = 1;
-                material.side = THREE.DoubleSide; // Ensure double side rendering
-                
+                material.side = THREE.DoubleSide;
+
                 mesh.castShadow = true;
                 mesh.receiveShadow = true;
             }
         });
     }, [scene]);
 
-    // Final User-Defined Transforms (Studio Verified)
-    // Pos: [2.452, -0.544, 0.168]
-    // Rot: [85.9, 29.5, -8.8]
-    // Scl: [2.0]
-    
+    // Initial render state
     return (
-        <group 
-            ref={gateRef} 
-            position={[2.452, -1.5, 0.168]} 
-            scale={[0.8, 0.8, 0.8]} 
-            rotation={[
-                THREE.MathUtils.degToRad(0),   
-                THREE.MathUtils.degToRad(-20), // Face left
-                THREE.MathUtils.degToRad(0)
-            ]}
+        <group
+            ref={gateRef}
+            position={initialPos}
+            scale={initialScale}
+            rotation={initialRot}
         >
             <primitive object={scene} />
         </group>
