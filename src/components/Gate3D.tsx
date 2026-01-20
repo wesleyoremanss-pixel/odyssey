@@ -17,30 +17,25 @@ export function Gate3D({ scrollProgress, isMobile }: { scrollProgress?: any, isM
     const initialRot = new THREE.Euler(0, THREE.MathUtils.degToRad(-20), 0);
     const initialScale = new THREE.Vector3(0.8, 0.8, 0.8);
 
-    useFrame(() => {
+    useFrame((state) => {
         if (!gateRef.current || !scrollProgress) return;
 
-        // easeInCubic for exponential zoom feel
         const p = scrollProgress.get();
-        const ease = p * p * p;
+        const ease = p * p * p; // easeInCubic
 
-        // 1. Rotation: Static (Face the user, or slight angle)
-        // User requested NO SPIN. We keep the initial slight angle or set to 0.
+        // 1. GATE IS STATIC (User Requirement)
+        gateRef.current.position.set(initialPos.x, initialPos.y, initialPos.z);
         gateRef.current.rotation.y = initialRot.y;
 
-        // 2. Zoom / Position Z
-        // Move from 0.168 to +10 (Through Camera)
-        const targetZ = initialPos.z + (12 * ease);
-        gateRef.current.position.z = targetZ;
+        // 2. CAMERA MOVES (We Approach The Gate)
+        // Z: 8 -> -4 (Pass through)
+        const targetCamZ = 8 - (12 * ease);
+        state.camera.position.z = targetCamZ;
 
-        // 3. Move X to center (0)
-        // CRITICAL FIX: Use 'p' (linear) or 'ease' but ensure it reaches 0.
-        // If we use (1-p), it moves linearly to center.
-        // If we use (1-ease), it stays on right longer then snaps center.
-        // The user wants it CENTERING as it moves. Linear 'p' is safer for alignment.
-        const targetX = initialPos.x * (1 - p);
-        gateRef.current.position.x = targetX;
-
+        // X: 0 -> initialX (Align with Gate center)
+        // We simulate "Walking towards the gate" by moving the camera sideways to align.
+        const targetCamX = initialPos.x * ease;
+        state.camera.position.x = targetCamX;
     });
 
     // Setup Materials

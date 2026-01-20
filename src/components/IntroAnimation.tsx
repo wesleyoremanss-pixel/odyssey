@@ -369,30 +369,10 @@ export default function IntroAnimation() {
                     />
                 </motion.div>
 
-                {/* ------------------------------------------- */}
-                {/* NEW: DARKNESS LAYER (Z-35) - Behind Gate    */}
-                {/* Fades in to replace the background logic    */}
-                {/* ------------------------------------------- */}
-                <motion.div
-                    className="absolute inset-0 z-35 flex items-center justify-center overflow-hidden pointer-events-none"
-                    style={{ opacity: darknessOpacity }}
-                >
-                    <img src="/assets/bg-dark.webp" className="w-full h-full object-cover" alt="Darkness Leak" />
-                </motion.div>
+
 
                 {/* 4. THE GATE (3D) (z-40) */}
-                {!loading && (
-                    <motion.div
-                        className="absolute inset-[-5%] w-[110%] h-[110%] z-40"
-                        style={{
-                            x: xGate,
-                            y: yGate
-                        }}
-                    >
-                        {/* PASS SCROLL PROGRESS TO 3D SCENE */}
-                        <Scene3D zIndex={40} scrollProgress={gateProgress} isMobile={isMobile} />
-                    </motion.div>
-                )}
+
 
                 {/* 5. Foreground (z-50) */}
                 <motion.div
