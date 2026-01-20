@@ -79,6 +79,10 @@ export default function IntroAnimation() {
     // Gate Interaction Progress (0 to 1 over 800px scroll)
     const gateProgress = useTransform(scrollY, [0, 800], [0, 1]);
 
+    // GLOBAL SCALE: Zooms everything in as we approach the gate
+    // 1.0 -> 2.5 simulates walking forward
+    const globalScale = useTransform(gateProgress, [0, 1], [1, 2.5]);
+
     // Volcano Blur (Sync with scroll)
     const blurVolcano = useTransform(scrollY, [0, 600], ["blur(0px)", "blur(12px)"]);
     const opacityVolcano = useTransform(scrollY, [0, 600], [1, 0.4]);
