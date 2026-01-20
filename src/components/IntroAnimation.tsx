@@ -167,35 +167,37 @@ export default function IntroAnimation() {
         }
     }, [progress]);
 
+    // 4. Portal Expansion Logic (Circle Clip Path)
+    // Starts small (0%) at 0.85, expands to full (150% to cover corners) at 1.0
+    const portalRadius = useTransform(gateProgress, [0.85, 1], ["0%", "150%"]);
+    const portalClipPath = useTransform(portalRadius, (r) => `circle(${r} at 50% 50%)`);
+
+    // UI doesn't fade, but might move/scale.
+    // Ensure UI is visible over the portal.
+
     return (
         <div className={`relative z-0 w-full bg-[#050505] ${loading ? 'h-screen overflow-hidden' : 'min-h-[200vh]'}`}>
 
+            {/* 1. FLASH EFFECT (Z-60) - On top of Intro, but under UI */}
             <ExplosionTransition progress={explosionProgress} />
 
+            {/* 2. PORTAL LAYER (Z-50) - reveals bg-dark inside the explosion */}
             <motion.div
-                className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center z-0"
-                style={{
-                    opacity: introOpacity,
-                    pointerEvents: introPointerEvents
-                }}
+                className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden pointer-events-none"
+                style={{ clipPath: portalClipPath }}
             >
-
-
-
-                {/* Base Background Color */}
-                <div className="absolute inset-0 -z-[100] bg-[#050505]" />
-
-                {/* Grainy Gradient */}
-                <div className="absolute inset-0 z-[100] pointer-events-none mix-blend-overlay opacity-20">
-                    <div
-                        className="absolute inset-0 bg-repeat opacity-50"
-                        style={{ backgroundImage: 'url(/assets/noise.png)', backgroundSize: '200px' }}
-                    />
+                <div className="relative w-full h-full">
+                    <img src="/assets/bg-dark.webp" className="absolute inset-0 w-full h-full object-cover" alt="Dark Portal" />
+                    {/* Optional: Add content that exists in the dark world here if needed immediately */}
                 </div>
+            </motion.div>
 
+
+            {/* 3. PERSISTENT UI LAYER (Z-100) - Menu follows page */}
+            <div className="fixed inset-0 z-[100] pointer-events-none">
                 {/* HEADER */}
                 <motion.div
-                    className="fixed top-0 left-0 w-full z-[100] flex justify-center items-start pt-0 md:pt-0 pointer-events-none"
+                    className="absolute top-0 left-0 w-full flex justify-center items-start pt-0 md:pt-0"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 1.0, delay: 0.5 }}
@@ -224,30 +226,6 @@ export default function IntroAnimation() {
                             </motion.div>
                         )}
                     </div>
-                </motion.div>
-
-                {/* Loading / Transition Logo */}
-                <motion.div
-                    className="fixed inset-0 z-[101] pointer-events-none"
-                >
-                    <motion.div
-                        className="absolute left-1/2 flex items-center justify-center pointer-events-auto" // Enable pointer for hover
-                        initial={{ top: '50%', y: '-50%', x: '-50%', width: '300px', height: '300px' }} // FIXED START SIZE
-                        animate={!loading
-                            ? {
-                                top: '4%', // Adjusted: Up from 12%, close to top (but not 0%).
-                                y: '0%',
-                                width: isMobile ? '90px' : '75px',
-                                height: isMobile ? '35px' : '38px',
-                                left: '50%',
-                                x: '-50%',
-                            }
-                            : { top: '50%', y: '-50%', x: '-50%', width: isMobile ? '180px' : '300px', height: isMobile ? '180px' : '300px' }
-                        }
-                        transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-                    >
-                        <LogoAnimator loading={loading} progress={progress} isMobile={isMobile} />
-                    </motion.div>
                 </motion.div>
 
                 {/* Menu Overlay */}
@@ -283,9 +261,10 @@ export default function IntroAnimation() {
                     )}
                 </AnimatePresence>
 
+                {/* Navigation (Sticky/Parallax behavior maintained via useTransform) */}
                 {!loading && (
                     <motion.div
-                        className="absolute z-[90] pointer-events-auto"
+                        className="absolute pointer-events-auto"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1.0, delay: 2.8 }}
@@ -298,9 +277,57 @@ export default function IntroAnimation() {
                             opacity: isMobile ? opacityScrollText : 1
                         }}
                     >
+                        {/* Note: opacityScrollText currently fades out text on scroll. 
+                             If user wants menu to follow page, we might need to DISABLE this opacity fade 
+                             or update standard Nav to be fixed after intro. 
+                             For now, I keep the props but ensure it's rendered in this persistent layer. */ }
                         <Navigation isMobile={isMobile} />
                     </motion.div>
                 )}
+
+                {/* Loading / Transition Logo */}
+                <motion.div className="fixed inset-0 z-[101] pointer-events-none">
+                    <motion.div
+                        className="absolute left-1/2 flex items-center justify-center pointer-events-auto"
+                        initial={{ top: '50%', y: '-50%', x: '-50%', width: '300px', height: '300px' }}
+                        animate={!loading
+                            ? {
+                                top: '4%',
+                                y: '0%',
+                                width: isMobile ? '90px' : '75px',
+                                height: isMobile ? '35px' : '38px',
+                                left: '50%',
+                                x: '-50%',
+                            }
+                            : { top: '50%', y: '-50%', x: '-50%', width: isMobile ? '180px' : '300px', height: isMobile ? '180px' : '300px' }
+                        }
+                        transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+                    >
+                        <LogoAnimator loading={loading} progress={progress} isMobile={isMobile} />
+                    </motion.div>
+                </motion.div>
+
+            </div>
+
+
+            {/* 4. INTRO SCENE LAYER (Z-0) - Fades Out */}
+            <motion.div
+                className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center z-0"
+                style={{
+                    opacity: introOpacity,
+                    pointerEvents: introPointerEvents
+                }}
+            >
+                {/* Base Background Color */}
+                <div className="absolute inset-0 -z-[100] bg-[#050505]" />
+
+                {/* Grainy Gradient */}
+                <div className="absolute inset-0 z-[100] pointer-events-none mix-blend-overlay opacity-20">
+                    <div
+                        className="absolute inset-0 bg-repeat opacity-50"
+                        style={{ backgroundImage: 'url(/assets/noise.png)', backgroundSize: '200px' }}
+                    />
+                </div>
 
                 {/* PARALLAX LAYERS (Back to Front) - Positive Z-Indexes */}
 
