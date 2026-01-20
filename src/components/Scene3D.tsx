@@ -17,10 +17,21 @@ export default function Scene3D({ zIndex = 0 }: { zIndex?: number }) {
                 className="pointer-events-auto" // Enable interaction
             >
                 <Suspense fallback={null}>
-                    {/* Lighting Rig - Studio Match */}
-                    <ambientLight intensity={0.5} />
-                    <directionalLight position={[10, 10, 5]} intensity={2} />
-                    <Environment preset="city" />
+                    {/* Lighting Rig - Sunset / Golden Hour Match */}
+                    <ambientLight intensity={1.5} color="#ffdcb4" /> {/* Warm ambient to lift shadows */}
+                    <directionalLight 
+                        position={[5, 4, 3]} 
+                        intensity={3.5} 
+                        color="#ff9b50" // Strong orange sunlight
+                        castShadow 
+                    />
+                    <spotLight 
+                        position={[-5, 5, 5]} 
+                        intensity={4} 
+                        color="#ff6b00"  // Secondary sunset rim light from left
+                        angle={0.5} 
+                    />
+                    <Environment preset="sunset" />
 
                     <Gate3D />
                     

@@ -45,11 +45,11 @@ export function Gate3D() {
         <group 
             ref={gateRef} 
             position={[2.452, -0.544, 0.168]} 
-            scale={[0.55, 0.55, 0.55]} 
+            scale={[0.8, 0.8, 0.8]} 
             rotation={[
-                THREE.MathUtils.degToRad(0),   // Fix: Stand upright (was 85.9)
-                THREE.MathUtils.degToRad(25),  // Keep slight turn
-                THREE.MathUtils.degToRad(0)    // Remove Z tilt
+                THREE.MathUtils.degToRad(0),   
+                THREE.MathUtils.degToRad(-20), // Face left
+                THREE.MathUtils.degToRad(0)
             ]}
         >
             <primitive object={scene} />
