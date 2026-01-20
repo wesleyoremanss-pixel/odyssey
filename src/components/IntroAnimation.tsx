@@ -303,146 +303,146 @@ export default function IntroAnimation() {
             </div>
 
 
-        </div>
 
-            {/* ------------------------------------------- */ }
-    {/* NEW: DARKNESS LAYER (Z-35) - PERSISTENT     */ }
-    {/* ------------------------------------------- */ }
-    <motion.div
-        className="fixed inset-0 z-35 flex items-center justify-center overflow-hidden pointer-events-none"
-        style={{ opacity: darknessOpacity }}
-    >
-        <img src="/assets/bg-dark.webp" className="w-full h-full object-cover" alt="Darkness Leak" />
-    </motion.div>
 
-    {/* ------------------------------------------- */ }
-    {/* GATE LAYER (Z-40) - PERSISTENT              */ }
-    {/* ------------------------------------------- */ }
-    {
-        !loading && (
+            {/* ------------------------------------------- */}
+            {/* NEW: DARKNESS LAYER (Z-35) - PERSISTENT     */}
+            {/* ------------------------------------------- */}
             <motion.div
-                className="fixed inset-[-5%] w-[110%] h-[110%] z-40 pointer-events-none"
+                className="fixed inset-0 z-35 flex items-center justify-center overflow-hidden pointer-events-none"
+                style={{ opacity: darknessOpacity }}
+            >
+                <img src="/assets/bg-dark.webp" className="w-full h-full object-cover" alt="Darkness Leak" />
+            </motion.div>
+
+            {/* ------------------------------------------- */}
+            {/* GATE LAYER (Z-40) - PERSISTENT              */}
+            {/* ------------------------------------------- */}
+            {
+                !loading && (
+                    <motion.div
+                        className="fixed inset-[-5%] w-[110%] h-[110%] z-40 pointer-events-none"
+                        style={{
+                            x: xGate,
+                            y: yGate
+                        }}
+                    >
+                        <Scene3D zIndex={40} scrollProgress={gateProgress} isMobile={isMobile} />
+                    </motion.div>
+                )
+            }
+            <motion.div
+                className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center z-0"
                 style={{
-                    x: xGate,
-                    y: yGate
+                    opacity: introOpacity,
+                    pointerEvents: introPointerEvents
                 }}
             >
-                <Scene3D zIndex={40} scrollProgress={gateProgress} isMobile={isMobile} />
-            </motion.div>
-        )
-    }
-    <motion.div
-        className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center z-0"
-        style={{
-            opacity: introOpacity,
-            pointerEvents: introPointerEvents
-        }}
-    >
-        {/* Base Background Color */}
-        <div className="absolute inset-0 -z-[100] bg-[#050505]" />
+                {/* Base Background Color */}
+                <div className="absolute inset-0 -z-[100] bg-[#050505]" />
 
-        {/* Grainy Gradient */}
-        <div className="absolute inset-0 z-[100] pointer-events-none mix-blend-overlay opacity-20">
-            <div
-                className="absolute inset-0 bg-repeat opacity-50"
-                style={{ backgroundImage: 'url(/assets/noise.png)', backgroundSize: '200px' }}
-            />
-        </div>
+                {/* Grainy Gradient */}
+                <div className="absolute inset-0 z-[100] pointer-events-none mix-blend-overlay opacity-20">
+                    <div
+                        className="absolute inset-0 bg-repeat opacity-50"
+                        style={{ backgroundImage: 'url(/assets/noise.png)', backgroundSize: '200px' }}
+                    />
+                </div>
 
-        {/* PARALLAX LAYERS (Back to Front) - Positive Z-Indexes */}
+                {/* PARALLAX LAYERS (Back to Front) - Positive Z-Indexes */}
 
-        {/* 1. Sky (z-10) */}
-        <motion.div
-            className="absolute inset-[-5%] w-[110%] h-[110%] z-10"
-            style={{ x: xSky, y: ySky, scale: globalScale }}
-            initial={{ scale: 1.1 }}
-            animate={{ scale: !loading ? 1.0 : 1.1 }}
-            transition={{ duration: 3.0, delay: 1.0 }}
-        >
-            <img src="/assets/hero/bg.webp" className="w-full h-full object-cover opacity-80" alt="Background Sky" />
-        </motion.div>
-
-        {/* 2. Mountains (z-20) */}
-        <motion.div
-            className="absolute inset-[-5%] w-[110%] h-[110%] z-20"
-            style={{ x: xMountain, y: yMountain, scale: globalScale }}
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: !loading ? 0 : 30, opacity: !loading ? 1 : 0 }}
-            transition={{ duration: 2.2, delay: 1.2 }}
-        >
-            <img src="/assets/hero/mountains_back.webp" className="w-full h-full object-cover transform scale-125 -translate-y-[15%] md:scale-100 md:translate-y-0 origin-center" alt="Mountain Back" />
-        </motion.div>
-
-        {/* 3. Volcano (z-30) */}
-        <motion.div
-            className="absolute inset-[-5%] w-[110%] h-[110%] z-30"
-            style={{
-                x: xVolcano,
-                y: yVolcano,
-                filter: blurVolcano,
-                opacity: opacityVolcano,
-                scale: globalScale
-            }}
-            initial={{ scale: 1.1, opacity: 0 }}
-            animate={{ scale: !loading ? 1 : 1.1, opacity: !loading ? 1 : 0 }}
-            transition={{ duration: 2.6, delay: 1.6, ease: "easeOut" }}
-        >
-            <img src="/assets/hero/volcano-main.webp" className="w-full h-full object-cover object-[70%] md:object-center" alt="Volcano Main" />
-            <motion.div
-                className="absolute top-[40%] left-[50%] w-[100px] h-[100px] bg-orange-600 blur-[60px] rounded-full mix-blend-screen -z-10"
-                animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.2, 1] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                style={{ x: "-50%", y: "-50%" }}
-            />
-        </motion.div>
-
-
-
-        {/* 4. THE GATE (3D) (z-40) */}
-
-
-        {/* 5. Foreground (z-50) */}
-        <motion.div
-            className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none"
-            style={{
-                x: xForeground,
-                y: yForegroundCombined,
-                scale: scaleForegroundCombined,
-                opacity: opacityScrollForeground,
-                filter: blurScrollForeground
-            }}
-            initial={{ scale: 1.15, opacity: 0 }}
-            animate={{ scale: !loading ? 1.05 : 1.15, opacity: !loading ? 1 : 0 }}
-            transition={{ duration: 3.0, delay: 1.8 }}
-        >
-            <img src="/assets/hero/foreground.webp" className="w-full h-full object-cover transform scale-125 md:scale-100 origin-bottom" alt="Foreground" />
-        </motion.div>
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none z-[60]" />
-
-        {/* Text (z-70) */}
-        <motion.div
-            className="absolute inset-0 flex flex-col items-start justify-end pl-[5%] pb-[10%] md:pb-[5%] z-[70] pointer-events-none"
-        >
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: !loading ? 1 : 0 }}
-                transition={{ duration: 2.0, delay: 1.5, ease: "easeOut" }}
-            >
-                <motion.div style={{ opacity: opacityScrollText }}>
-                    <h1 className="font-[family-name:var(--font-cormorant)] italic font-light text-[12vw] md:text-[6vw] leading-[1.1] text-[#E5E0D8]">
-                        Travel deeper.
-                    </h1>
-                    <p className="mt-2 md:mt-4 font-[family-name:var(--font-cormorant)] text-lg md:text-2xl text-[#E5E0D8]/80 italic">
-                        Not faster. Not louder. Just deeper.
-                    </p>
+                {/* 1. Sky (z-10) */}
+                <motion.div
+                    className="absolute inset-[-5%] w-[110%] h-[110%] z-10"
+                    style={{ x: xSky, y: ySky, scale: globalScale }}
+                    initial={{ scale: 1.1 }}
+                    animate={{ scale: !loading ? 1.0 : 1.1 }}
+                    transition={{ duration: 3.0, delay: 1.0 }}
+                >
+                    <img src="/assets/hero/bg.webp" className="w-full h-full object-cover opacity-80" alt="Background Sky" />
                 </motion.div>
-            </motion.div>
-        </motion.div>
 
-    </motion.div>
-    {/* Scroll Spacer - Controls the speed of the intro animation */ }
-    <div className="h-[200vh]" />
+                {/* 2. Mountains (z-20) */}
+                <motion.div
+                    className="absolute inset-[-5%] w-[110%] h-[110%] z-20"
+                    style={{ x: xMountain, y: yMountain, scale: globalScale }}
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: !loading ? 0 : 30, opacity: !loading ? 1 : 0 }}
+                    transition={{ duration: 2.2, delay: 1.2 }}
+                >
+                    <img src="/assets/hero/mountains_back.webp" className="w-full h-full object-cover transform scale-125 -translate-y-[15%] md:scale-100 md:translate-y-0 origin-center" alt="Mountain Back" />
+                </motion.div>
+
+                {/* 3. Volcano (z-30) */}
+                <motion.div
+                    className="absolute inset-[-5%] w-[110%] h-[110%] z-30"
+                    style={{
+                        x: xVolcano,
+                        y: yVolcano,
+                        filter: blurVolcano,
+                        opacity: opacityVolcano,
+                        scale: globalScale
+                    }}
+                    initial={{ scale: 1.1, opacity: 0 }}
+                    animate={{ scale: !loading ? 1 : 1.1, opacity: !loading ? 1 : 0 }}
+                    transition={{ duration: 2.6, delay: 1.6, ease: "easeOut" }}
+                >
+                    <img src="/assets/hero/volcano-main.webp" className="w-full h-full object-cover object-[70%] md:object-center" alt="Volcano Main" />
+                    <motion.div
+                        className="absolute top-[40%] left-[50%] w-[100px] h-[100px] bg-orange-600 blur-[60px] rounded-full mix-blend-screen -z-10"
+                        animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.2, 1] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                        style={{ x: "-50%", y: "-50%" }}
+                    />
+                </motion.div>
+
+
+
+                {/* 4. THE GATE (3D) (z-40) */}
+
+
+                {/* 5. Foreground (z-50) */}
+                <motion.div
+                    className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none"
+                    style={{
+                        x: xForeground,
+                        y: yForegroundCombined,
+                        scale: scaleForegroundCombined,
+                        opacity: opacityScrollForeground,
+                        filter: blurScrollForeground
+                    }}
+                    initial={{ scale: 1.15, opacity: 0 }}
+                    animate={{ scale: !loading ? 1.05 : 1.15, opacity: !loading ? 1 : 0 }}
+                    transition={{ duration: 3.0, delay: 1.8 }}
+                >
+                    <img src="/assets/hero/foreground.webp" className="w-full h-full object-cover transform scale-125 md:scale-100 origin-bottom" alt="Foreground" />
+                </motion.div>
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none z-[60]" />
+
+                {/* Text (z-70) */}
+                <motion.div
+                    className="absolute inset-0 flex flex-col items-start justify-end pl-[5%] pb-[10%] md:pb-[5%] z-[70] pointer-events-none"
+                >
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: !loading ? 1 : 0 }}
+                        transition={{ duration: 2.0, delay: 1.5, ease: "easeOut" }}
+                    >
+                        <motion.div style={{ opacity: opacityScrollText }}>
+                            <h1 className="font-[family-name:var(--font-cormorant)] italic font-light text-[12vw] md:text-[6vw] leading-[1.1] text-[#E5E0D8]">
+                                Travel deeper.
+                            </h1>
+                            <p className="mt-2 md:mt-4 font-[family-name:var(--font-cormorant)] text-lg md:text-2xl text-[#E5E0D8]/80 italic">
+                                Not faster. Not louder. Just deeper.
+                            </p>
+                        </motion.div>
+                    </motion.div>
+                </motion.div>
+
+            </motion.div>
+            {/* Scroll Spacer - Controls the speed of the intro animation */}
+            <div className="h-[200vh]" />
         </div >
     );
 }
