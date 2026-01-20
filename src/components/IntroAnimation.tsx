@@ -352,7 +352,7 @@ export default function IntroAnimation() {
                 {/* 1. Sky (z-10) */}
                 <motion.div
                     className="absolute inset-[-5%] w-[110%] h-[110%] z-10"
-                    style={{ x: xSky, y: ySky, scale: globalScale }}
+                    style={{ x: xSky, y: ySky }}
                     initial={{ scale: 1.1 }}
                     animate={{ scale: !loading ? 1.0 : 1.1 }}
                     transition={{ duration: 3.0, delay: 1.0 }}
@@ -363,7 +363,7 @@ export default function IntroAnimation() {
                 {/* 2. Mountains (z-20) */}
                 <motion.div
                     className="absolute inset-[-5%] w-[110%] h-[110%] z-20"
-                    style={{ x: xMountain, y: yMountain, scale: globalScale }}
+                    style={{ x: xMountain, y: yMountain }}
                     initial={{ y: 30, opacity: 0 }}
                     animate={{ y: !loading ? 0 : 30, opacity: !loading ? 1 : 0 }}
                     transition={{ duration: 2.2, delay: 1.2 }}
@@ -378,8 +378,7 @@ export default function IntroAnimation() {
                         x: xVolcano,
                         y: yVolcano,
                         filter: blurVolcano,
-                        opacity: opacityVolcano,
-                        scale: globalScale
+                        opacity: opacityVolcano
                     }}
                     initial={{ scale: 1.1, opacity: 0 }}
                     animate={{ scale: !loading ? 1 : 1.1, opacity: !loading ? 1 : 0 }}
