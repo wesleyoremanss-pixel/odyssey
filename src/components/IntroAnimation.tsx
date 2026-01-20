@@ -1,4 +1,4 @@
-'use client';
+
 
 // Re-trigger build
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useScroll } from 'framer-motion';
@@ -79,10 +79,6 @@ export default function IntroAnimation() {
     // Gate Interaction Progress (0 to 1 over 800px scroll)
     const gateProgress = useTransform(scrollY, [0, 800], [0, 1]);
 
-    // GLOBAL SCALE: Zooms everything in as we approach the gate
-    // 1.0 -> 2.5 simulates walking forward
-    const globalScale = useTransform(gateProgress, [0, 1], [1, 2.5]);
-
     // Volcano Blur (Sync with scroll)
     const blurVolcano = useTransform(scrollY, [0, 600], ["blur(0px)", "blur(12px)"]);
     const opacityVolcano = useTransform(scrollY, [0, 600], [1, 0.4]);
@@ -91,8 +87,9 @@ export default function IntroAnimation() {
     // 1. Explosion Progress: Starts at 85% of scroll, ends at 100%
     const explosionProgress = useTransform(gateProgress, [0.85, 1], [0, 1]);
 
-    // 2. Intro Opacity: Fades out as explosion happens (reveals underlying 2nd section)
-    const introOpacity = useTransform(gateProgress, [0.9, 1], [1, 0]);
+    // 2. Intro Opacity: Fades out smoothly, crossing with Darkness
+    // [0.6 -> 1.0] Fades OUT
+    const introOpacity = useTransform(gateProgress, [0.6, 1], [1, 0]);
 
     // 3. Pointer Events: Disable intro interactions when transition starts
     const introPointerEvents = useTransform(gateProgress, (v) => v > 0.9 ? 'none' : 'auto');
@@ -173,7 +170,8 @@ export default function IntroAnimation() {
 
     // 4. Darkness "Leak" Logic
     // Fades in behind the gate as we approach, replacing the sunny background
-    const darknessOpacity = useTransform(gateProgress, [0.7, 0.95], [0, 1]);
+    // [0.6 -> 1.0] Fades IN (Synced with Intro Fade Out)
+    const darknessOpacity = useTransform(gateProgress, [0.6, 1], [0, 1]);
 
     // UI doesn't fade, but might move/scale.
     // Ensure UI is visible over the portal.

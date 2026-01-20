@@ -34,7 +34,8 @@ export function Gate3D({ scrollProgress, isMobile }: { scrollProgress?: any, isM
 
         // X: 0 -> initialX (Align with Gate center)
         // We simulate "Walking towards the gate" by moving the camera sideways to align.
-        const targetCamX = initialPos.x * ease;
+        // LINEAR (p) ensures we don't lag behind visually.
+        const targetCamX = initialPos.x * p;
         state.camera.position.x = targetCamX;
     });
 
