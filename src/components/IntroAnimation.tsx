@@ -316,6 +316,30 @@ export default function IntroAnimation() {
             </motion.div>
 
             {/* ------------------------------------------- */}
+            {/* VOLCANO LAYER (Z-38) - PERSISTENT           */}
+            {/* ------------------------------------------- */}
+            <motion.div
+                className="absolute inset-[-5%] w-[110%] h-[110%] z-[38] pointer-events-none"
+                style={{
+                    x: xVolcano,
+                    y: yVolcano,
+                    filter: blurVolcano,
+                    opacity: opacityVolcano
+                }}
+                initial={{ scale: 1.1, opacity: 0 }}
+                animate={{ scale: !loading ? 1 : 1.1, opacity: !loading ? 1 : 0 }}
+                transition={{ duration: 2.6, delay: 1.6, ease: "easeOut" }}
+            >
+                <img src="/assets/hero/volcano-main.webp" className="w-full h-full object-cover object-[70%] md:object-center" alt="Volcano Main" />
+                <motion.div
+                    className="absolute top-[40%] left-[50%] w-[100px] h-[100px] bg-orange-600 blur-[60px] rounded-full mix-blend-screen -z-10"
+                    animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.2, 1] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    style={{ x: "-50%", y: "-50%" }}
+                />
+            </motion.div>
+
+            {/* ------------------------------------------- */}
             {/* GATE LAYER (Z-40) - PERSISTENT              */}
             {/* ------------------------------------------- */}
             {
@@ -331,6 +355,25 @@ export default function IntroAnimation() {
                     </motion.div>
                 )
             }
+
+            {/* ------------------------------------------- */}
+            {/* FOREGROUND LAYER (Z-50) - PERSISTENT        */}
+            {/* ------------------------------------------- */}
+            <motion.div
+                className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none"
+                style={{
+                    x: xForeground,
+                    y: yForegroundCombined,
+                    scale: scaleForegroundCombined,
+                    opacity: opacityScrollForeground,
+                    filter: blurScrollForeground
+                }}
+                initial={{ scale: 1.15, opacity: 0 }}
+                animate={{ scale: !loading ? 1.05 : 1.15, opacity: !loading ? 1 : 0 }}
+                transition={{ duration: 3.0, delay: 1.8 }}
+            >
+                <img src="/assets/hero/foreground.webp" className="w-full h-full object-cover transform scale-125 md:scale-100 origin-bottom" alt="Foreground" />
+            </motion.div>
             <motion.div
                 className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center z-0"
                 style={{
@@ -373,49 +416,14 @@ export default function IntroAnimation() {
                     <img src="/assets/hero/mountains_back.webp" className="w-full h-full object-cover transform scale-125 -translate-y-[15%] md:scale-100 md:translate-y-0 origin-center" alt="Mountain Back" />
                 </motion.div>
 
-                {/* 3. Volcano (z-30) */}
-                <motion.div
-                    className="absolute inset-[-5%] w-[110%] h-[110%] z-30"
-                    style={{
-                        x: xVolcano,
-                        y: yVolcano,
-                        filter: blurVolcano,
-                        opacity: opacityVolcano
-                    }}
-                    initial={{ scale: 1.1, opacity: 0 }}
-                    animate={{ scale: !loading ? 1 : 1.1, opacity: !loading ? 1 : 0 }}
-                    transition={{ duration: 2.6, delay: 1.6, ease: "easeOut" }}
-                >
-                    <img src="/assets/hero/volcano-main.webp" className="w-full h-full object-cover object-[70%] md:object-center" alt="Volcano Main" />
-                    <motion.div
-                        className="absolute top-[40%] left-[50%] w-[100px] h-[100px] bg-orange-600 blur-[60px] rounded-full mix-blend-screen -z-10"
-                        animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.2, 1] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        style={{ x: "-50%", y: "-50%" }}
-                    />
-                </motion.div>
+
 
 
 
                 {/* 4. THE GATE (3D) (z-40) */}
 
 
-                {/* 5. Foreground (z-50) */}
-                <motion.div
-                    className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none"
-                    style={{
-                        x: xForeground,
-                        y: yForegroundCombined,
-                        scale: scaleForegroundCombined,
-                        opacity: opacityScrollForeground,
-                        filter: blurScrollForeground
-                    }}
-                    initial={{ scale: 1.15, opacity: 0 }}
-                    animate={{ scale: !loading ? 1.05 : 1.15, opacity: !loading ? 1 : 0 }}
-                    transition={{ duration: 3.0, delay: 1.8 }}
-                >
-                    <img src="/assets/hero/foreground.webp" className="w-full h-full object-cover transform scale-125 md:scale-100 origin-bottom" alt="Foreground" />
-                </motion.div>
+
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none z-[60]" />
 
