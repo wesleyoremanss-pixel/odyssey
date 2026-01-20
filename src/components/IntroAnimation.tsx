@@ -170,23 +170,17 @@ export default function IntroAnimation() {
     return (
         <div className={`relative z-0 w-full bg-[#050505] ${loading ? 'h-screen overflow-hidden' : 'min-h-[200vh]'}`}>
 
-            <ExplosionTransition trigger={triggerExplosion} />
+            <ExplosionTransition progress={explosionProgress} />
 
-            <div
-                className={`fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center ${triggerExplosion ? 'z-[90]' : 'z-0'}`}
+            <motion.div
+                className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center z-0"
                 style={{
-                    opacity: triggerExplosion ? 0 : 1,
-                    pointerEvents: triggerExplosion ? 'none' : 'auto',
-                    transition: 'opacity 0.5s ease-out 0.5s' // Delay fade out until flash covers screen
+                    opacity: introOpacity,
+                    pointerEvents: introPointerEvents
                 }}
             >
 
-                {/* Reveal Dark BG after explosion */}
-                <motion.div
-                    className="absolute inset-0 -z-[90] bg-[#020202]"
-                    style={{ opacity: triggerExplosion ? 1 : 0 }}
-                    transition={{ duration: 0.5 }}
-                />
+
 
                 {/* Base Background Color */}
                 <div className="absolute inset-0 -z-[100] bg-[#050505]" />
@@ -407,10 +401,10 @@ export default function IntroAnimation() {
                     </motion.div>
                 </motion.div>
 
-            </div>
-            {/* Scroll Spacer - Controls the speed of the intro animation */}
-            <div className="h-[200vh]" />
         </div>
+            {/* Scroll Spacer - Controls the speed of the intro animation */ }
+    <div className="h-[200vh]" />
+        </div >
     );
 }
 
