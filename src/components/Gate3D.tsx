@@ -21,22 +21,50 @@ export function Gate3D({ scrollProgress, isMobile }: { scrollProgress?: any, isM
         if (!gateRef.current || !scrollProgress) return;
 
         const p = scrollProgress.get();
-        const ease = p * p * p; // easeInCubic
 
-        // 1. GATE IS STATIC (User Requirement)
-        gateRef.current.position.set(initialPos.x, initialPos.y, initialPos.z);
-        gateRef.current.rotation.y = initialRot.y;
+        // PHASE LOGIC
+        // Phase 1 (0 -> 0.5): Approach
+        // Phase 2 (0.5 -> 1.0): Return (Dark)
 
-        // 2. CAMERA MOVES (We Approach The Gate)
-        // Z: 8 -> -4 (Pass through)
-        const targetCamZ = 8 - (12 * ease);
+        let targetCamZ = 8;
+        let targetCamX = 0;
+        let colorIntensity = 1; // 1 = Normal, <1 = Darker
+
+        if (p <= 0.5) {
+            // PHASE 1: APPROACH
+            const localP = p / 0.5; // 0 -> 1
+            const ease = localP * localP * localP; // Ease In
+
+            targetCamZ = 8 - (12 * ease); // 8 -> -4
+            targetCamX = initialPos.x * localP; // 0 -> 2.45
+            colorIntensity = 1;
+        } else {
+            // PHASE 2: RETURN
+            const localP = (p - 0.5) / 0.5; // 0 -> 1
+            const ease = 1 - Math.pow(1 - localP, 3); // Ease Out Cubic (Smooth Stop)
+
+            // Return: -4 -> 8
+            targetCamZ = -4 + (12 * ease); // Return to start
+
+            // Return X: 2.45 -> 0
+            targetCamX = initialPos.x * (1 - ease);
+
+            // Darken: White -> Dark Grey (0.15)
+            colorIntensity = 1 - (0.85 * ease);
+        }
+
         state.camera.position.z = targetCamZ;
-
-        // X: 0 -> initialX (Align with Gate center)
-        // We simulate "Walking towards the gate" by moving the camera sideways to align.
-        // LINEAR (p) ensures we don't lag behind visually.
-        const targetCamX = initialPos.x * p;
         state.camera.position.x = targetCamX;
+
+        // Apply Color Darkening
+        gateRef.current.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+                const mat = (child as THREE.Mesh).material as THREE.MeshStandardMaterial;
+                if (mat) {
+                    mat.color.setRGB(colorIntensity, colorIntensity, colorIntensity);
+                }
+            }
+        });
     });
 
     // Setup Materials

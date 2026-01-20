@@ -67,7 +67,7 @@ export default function IntroAnimation() {
 
     // Scroll Transforms
     const scaleScrollForeground = useTransform(scrollY, [0, 400], [1, 1.5]);
-    const opacityScrollForeground = useTransform(scrollY, [0, 300], [1, 0]);
+    const opacityScrollForeground = useTransform(scrollY, [0, 300], [1, 1]);
     const blurScrollForeground = useTransform(scrollY, [0, 300], ["blur(0px)", "blur(10px)"]);
     const opacityScrollText = useTransform(scrollY, [0, 200], [1, 0]);
 
@@ -76,23 +76,25 @@ export default function IntroAnimation() {
         ([scaleScroll]: any[]) => (scaleScroll as number)
     );
 
-    // Gate Interaction Progress (0 to 1 over 800px scroll)
-    const gateProgress = useTransform(scrollY, [0, 800], [0, 1]);
+    // Gate Interaction Progress (0 to 1 over 1600px scroll - 2 Phases)
+    // 0.0 - 0.5: Phase 1 (Pass Through)
+    // 0.5 - 1.0: Phase 2 (Return Dark)
+    const gateProgress = useTransform(scrollY, [0, 1600], [0, 1]);
 
     // Volcano Blur (Sync with scroll)
     const blurVolcano = useTransform(scrollY, [0, 600], ["blur(0px)", "blur(12px)"]);
     const opacityVolcano = useTransform(scrollY, [0, 600], [1, 0.4]);
 
     // SCROLL-DRIVEN TRANSITION LOGIC
-    // 1. Explosion Progress: Starts at 85% of scroll, ends at 100%
-    const explosionProgress = useTransform(gateProgress, [0.85, 1], [0, 1]);
+    // 1. Explosion Progress: Starts at 85% of Phase 1 (0.425), ends at 0.5
+    const explosionProgress = useTransform(gateProgress, [0.425, 0.5], [0, 1]);
 
     // 2. Intro Opacity: Fades out smoothly, crossing with Darkness
-    // [0.6 -> 1.0] Fades OUT
-    const introOpacity = useTransform(gateProgress, [0.6, 1], [1, 0]);
+    // [0.3 -> 0.5] Fades OUT (Phase 1 End)
+    const introOpacity = useTransform(gateProgress, [0.3, 0.5], [1, 0]);
 
     // 3. Pointer Events: Disable intro interactions when transition starts
-    const introPointerEvents = useTransform(gateProgress, (v) => v > 0.9 ? 'none' : 'auto');
+    const introPointerEvents = useTransform(gateProgress, (v) => v > 0.45 ? 'none' : 'auto');
 
 
     // Gate Parallax Logic (Moved to Top Level)
@@ -170,14 +172,14 @@ export default function IntroAnimation() {
 
     // 4. Darkness "Leak" Logic
     // Fades in behind the gate as we approach, replacing the sunny background
-    // [0.6 -> 1.0] Fades IN (Synced with Intro Fade Out)
-    const darknessOpacity = useTransform(gateProgress, [0.6, 1], [0, 1]);
+    // [0.3 -> 0.5] Fades IN (Synced with Intro Fade Out)
+    const darknessOpacity = useTransform(gateProgress, [0.3, 0.5], [0, 1]);
 
     // UI doesn't fade, but might move/scale.
     // Ensure UI is visible over the portal.
 
     return (
-        <div className={`relative z-0 w-full bg-[#050505] ${loading ? 'h-screen overflow-hidden' : 'min-h-[200vh]'}`}>
+        <div className={`relative z-0 w-full bg-[#050505] ${loading ? 'h-screen overflow-hidden' : 'min-h-[300vh]'}`}>
 
             {/* 1. FLASH EFFECT REMOVED */}
 
