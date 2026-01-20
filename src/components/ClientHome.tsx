@@ -30,10 +30,9 @@ export default function ClientHome() {
       <IntroAnimation />
 
       {/* Second Section - Revealed after Intro */}
-      <div id="second-section" className="relative z-10 w-full min-h-screen">
-        {/* Placeholder for now / or actual components if ready */}
-        <div className="w-full h-screen flex items-center justify-center text-white relative">
-          <img src="/assets/bg-dark.webp" className="absolute inset-0 w-full h-full object-cover -z-10" alt="Dark Background" />
+      <div id="second-section" className="relative z-10 w-full min-h-screen pointer-events-none">
+        {/* Placeholder Content - Now Transparent, sits on top of Fixed Portal BG */}
+        <div className="w-full h-screen flex items-center justify-center text-white relative pointer-events-auto">
           <h2 className="text-4xl font-serif">Welcome to the Dark Side</h2>
         </div>
 
