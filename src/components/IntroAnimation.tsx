@@ -176,7 +176,14 @@ export default function IntroAnimation() {
 
             <ExplosionTransition trigger={triggerExplosion} />
 
-            <div className={`fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center ${triggerExplosion ? 'z-[90]' : 'z-0'}`}>
+            <div
+                className={`fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center ${triggerExplosion ? 'z-[90]' : 'z-0'}`}
+                style={{
+                    opacity: triggerExplosion ? 0 : 1,
+                    pointerEvents: triggerExplosion ? 'none' : 'auto',
+                    transition: 'opacity 0.5s ease-out 0.5s' // Delay fade out until flash covers screen
+                }}
+            >
 
                 {/* Reveal Dark BG after explosion */}
                 <motion.div
