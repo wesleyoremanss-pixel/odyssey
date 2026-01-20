@@ -364,6 +364,17 @@ export default function IntroAnimation() {
                     />
                 </motion.div>
 
+                {/* ------------------------------------------- */}
+                {/* NEW: DARKNESS LAYER (Z-35) - Behind Gate    */}
+                {/* Fades in to replace the background logic    */}
+                {/* ------------------------------------------- */}
+                <motion.div
+                    className="absolute inset-0 z-35 flex items-center justify-center overflow-hidden pointer-events-none"
+                    style={{ opacity: darknessOpacity }}
+                >
+                    <img src="/assets/bg-dark.webp" className="w-full h-full object-cover" alt="Darkness Leak" />
+                </motion.div>
+
                 {/* 4. THE GATE (3D) (z-40) */}
                 {!loading && (
                     <motion.div
