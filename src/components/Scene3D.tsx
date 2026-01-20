@@ -37,7 +37,8 @@ export default function Scene3D({ zIndex = 0, scrollProgress, isMobile }: { zInd
 
                     {/* Optional: Keep OrbitControls for subtle parallax interaction if desired, 
                         or remove for static feel. Keeping it enabled allows user to inspect. */}
-                    <OrbitControls enableZoom={false} enablePan={false} />
+                    {/* OrbitControls REMOVED to prevent user from messing up the alignment */}
+                    {/* <OrbitControls enableZoom={false} enablePan={false} /> */}
                 </Suspense>
             </Canvas>
         </div>

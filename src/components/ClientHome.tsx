@@ -29,18 +29,25 @@ export default function ClientHome() {
     <main className="relative min-h-screen font-sans bg-white dark:bg-[#0a0a0a]">
       <IntroAnimation />
 
-      {/* Content Sections - Temporarily Disabled
-      <div className="relative z-10 w-full bg-white dark:bg-[#0a0a0a]">
+      {/* Second Section - Revealed after Intro */}
+      <div id="second-section" className="relative z-10 w-full min-h-screen">
+        {/* Placeholder for now / or actual components if ready */}
+        <div className="w-full h-screen flex items-center justify-center text-white relative">
+          <img src="/assets/bg-dark.webp" className="absolute inset-0 w-full h-full object-cover -z-10" alt="Dark Background" />
+          <h2 className="text-4xl font-serif">Welcome to the Dark Side</h2>
+        </div>
+
+        {/*
         <Beaches />
         <Volcanoes />
         <Animals />
         <Culture />
+        */}
 
-        <footer className="py-20 text-center text-neutral-500 text-sm">
+        <footer className="py-20 text-center text-neutral-500 text-sm relative z-20">
           <p>© 2026 Esat Can Travel. Winter Edition.</p>
         </footer>
       </div>
-      */}
     </main>
   );
 }

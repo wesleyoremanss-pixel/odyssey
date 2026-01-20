@@ -405,8 +405,10 @@ export default function IntroAnimation() {
                 </motion.div>
 
             </div>
-            <div className="h-[200vh]" /> {/* Keep Scrollable Area */}
         </div>
+            {/* Scroll Spacer - Controls the speed of the intro animation */ }
+    <div className="h-[200vh]" /> 
+        </div >
     );
 }
 
