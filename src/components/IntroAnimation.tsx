@@ -83,19 +83,15 @@ export default function IntroAnimation() {
     const blurVolcano = useTransform(scrollY, [0, 600], ["blur(0px)", "blur(12px)"]);
     const opacityVolcano = useTransform(scrollY, [0, 600], [1, 0.4]);
 
-    // Explosion Trigger
-    const [triggerExplosion, setTriggerExplosion] = useState(false);
+    // SCROLL-DRIVEN TRANSITION LOGIC
+    // 1. Explosion Progress: Starts at 85% of scroll, ends at 100%
+    const explosionProgress = useTransform(gateProgress, [0.85, 1], [0, 1]);
 
-    // Use motion value listener to trigger state
-    useEffect(() => {
-        return gateProgress.on("change", (latest) => {
-            if (latest > 0.95 && !triggerExplosion) {
-                setTriggerExplosion(true);
-            } else if (latest < 0.8 && triggerExplosion) {
-                setTriggerExplosion(false);
-            }
-        });
-    }, [gateProgress, triggerExplosion]);
+    // 2. Intro Opacity: Fades out as explosion happens (reveals underlying 2nd section)
+    const introOpacity = useTransform(gateProgress, [0.9, 1], [1, 0]);
+
+    // 3. Pointer Events: Disable intro interactions when transition starts
+    const introPointerEvents = useTransform(gateProgress, (v) => v > 0.9 ? 'none' : 'auto');
 
 
     // Gate Parallax Logic (Moved to Top Level)
