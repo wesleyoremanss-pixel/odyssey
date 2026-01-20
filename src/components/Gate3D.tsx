@@ -24,10 +24,9 @@ export function Gate3D({ scrollProgress, isMobile }: { scrollProgress?: any, isM
         const p = scrollProgress.get();
         const ease = p * p * p;
 
-        // 1. Rotation: 0 to 360 (Right to Left)
-        // Start from initialRot.y (-20 deg) and add 360 * p
-        const targetRotY = initialRot.y + (Math.PI * 2 * ease);
-        gateRef.current.rotation.y = targetRotY;
+        // 1. Rotation: Static (Face the user, or slight angle)
+        // User requested NO SPIN. We keep the initial slight angle or set to 0.
+        gateRef.current.rotation.y = initialRot.y;
 
         // 2. Zoom / Position Z
         // Move from 0.168 to +10 (Through Camera)

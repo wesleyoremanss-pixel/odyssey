@@ -167,10 +167,9 @@ export default function IntroAnimation() {
         }
     }, [progress]);
 
-    // 4. Portal Expansion Logic (Circle Clip Path)
-    // Starts small (0%) at 0.85, expands to full (150% to cover corners) at 1.0
-    const portalRadius = useTransform(gateProgress, [0.85, 1], ["0%", "150%"]);
-    const portalClipPath = useTransform(portalRadius, (r) => `circle(${r} at 50% 50%)`);
+    // 4. Darkness "Leak" Logic
+    // Fades in behind the gate as we approach, replacing the sunny background
+    const darknessOpacity = useTransform(gateProgress, [0.7, 0.95], [0, 1]);
 
     // UI doesn't fade, but might move/scale.
     // Ensure UI is visible over the portal.
@@ -178,19 +177,9 @@ export default function IntroAnimation() {
     return (
         <div className={`relative z-0 w-full bg-[#050505] ${loading ? 'h-screen overflow-hidden' : 'min-h-[200vh]'}`}>
 
-            {/* 1. FLASH EFFECT (Z-60) - On top of Intro, but under UI */}
-            <ExplosionTransition progress={explosionProgress} />
+            {/* 1. FLASH EFFECT REMOVED */}
 
-            {/* 2. PORTAL LAYER (Z-50) - reveals bg-dark inside the explosion */}
-            <motion.div
-                className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden pointer-events-none"
-                style={{ clipPath: portalClipPath }}
-            >
-                <div className="relative w-full h-full">
-                    <img src="/assets/bg-dark.webp" className="absolute inset-0 w-full h-full object-cover" alt="Dark Portal" />
-                    {/* Optional: Add content that exists in the dark world here if needed immediately */}
-                </div>
-            </motion.div>
+            {/* 2. PORTAL LAYER REMOVED (Moved to Z-35 behind gate) */}
 
 
             {/* 3. PERSISTENT UI LAYER (Z-100) - Menu follows page */}
