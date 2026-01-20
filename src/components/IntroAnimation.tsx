@@ -401,10 +401,10 @@ export default function IntroAnimation() {
                     </motion.div>
                 </motion.div>
 
+            </motion.div>
+            {/* Scroll Spacer - Controls the speed of the intro animation */}
+            <div className="h-[200vh]" />
         </div>
-            {/* Scroll Spacer - Controls the speed of the intro animation */ }
-    <div className="h-[200vh]" />
-        </div >
     );
 }
 
