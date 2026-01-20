@@ -410,25 +410,7 @@ export default function IntroAnimation() {
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none z-[60]" />
 
-                {/* Text (z-70) */}
-                <motion.div
-                    className="absolute inset-0 flex flex-col items-start justify-end pl-[5%] pb-[10%] md:pb-[5%] z-[70] pointer-events-none"
-                >
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: !loading ? 1 : 0 }}
-                        transition={{ duration: 2.0, delay: 1.5, ease: "easeOut" }}
-                    >
-                        <motion.div style={{ opacity: opacityScrollText }}>
-                            <h1 className="font-[family-name:var(--font-cormorant)] italic font-light text-[12vw] md:text-[6vw] leading-[1.1] text-[#E5E0D8]">
-                                Travel deeper.
-                            </h1>
-                            <p className="mt-2 md:mt-4 font-[family-name:var(--font-cormorant)] text-lg md:text-2xl text-[#E5E0D8]/80 italic">
-                                Not faster. Not louder. Just deeper.
-                            </p>
-                        </motion.div>
-                    </motion.div>
-                </motion.div>
+
 
             </motion.div>
 
@@ -455,6 +437,26 @@ export default function IntroAnimation() {
                     transition={{ duration: 3.0, delay: 1.8 }}
                 >
                     <img src="/assets/hero/foreground.webp" className="w-full h-full object-cover transform scale-125 md:scale-100 origin-bottom" alt="Foreground" />
+                </motion.div>
+
+                {/* Text (Moved Here for Z-Index) */}
+                <motion.div
+                    className="absolute inset-0 flex flex-col items-start justify-end pl-[5%] pb-[10%] md:pb-[5%] z-[70] pointer-events-none"
+                >
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: !loading ? 1 : 0 }}
+                        transition={{ duration: 2.0, delay: 1.5, ease: "easeOut" }}
+                    >
+                        <motion.div style={{ opacity: opacityScrollText }}>
+                            <h1 className="font-[family-name:var(--font-cormorant)] italic font-light text-[12vw] md:text-[6vw] leading-[1.1] text-[#E5E0D8]">
+                                Travel deeper.
+                            </h1>
+                            <p className="mt-2 md:mt-4 font-[family-name:var(--font-cormorant)] text-lg md:text-2xl text-[#E5E0D8]/80 italic">
+                                Not faster. Not louder. Just deeper.
+                            </p>
+                        </motion.div>
+                    </motion.div>
                 </motion.div>
             </motion.div>
             {/* Scroll Spacer - Controls the speed of the intro animation */}
