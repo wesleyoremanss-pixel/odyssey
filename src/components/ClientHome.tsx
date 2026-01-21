@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import Lenis from 'lenis';
 import IntroAnimation from './IntroAnimation';
-import Beaches from '@/components/Beaches';
+// import Beaches from '@/components/Beaches';
 // import Volcanoes from '@/components/Volcanoes';
 // import Animals from '@/components/Animals';
 // import Culture from '@/components/Culture';
@@ -30,7 +30,8 @@ export default function ClientHome() {
       <IntroAnimation />
 
       <div className="relative z-10">
-        <Beaches />
+        {/* IntroAnimation now handles the transition to Beaches internally */}
+        {/* <Beaches /> */}
 
         {/* 
         <Volcanoes />

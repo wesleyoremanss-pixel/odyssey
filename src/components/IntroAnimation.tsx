@@ -1,11 +1,13 @@
+'use client';
 
-
-// Re-trigger build
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useScroll } from 'framer-motion';
-import { useState, useEffect, useRef } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Environment, useGLTF } from '@react-three/drei';
+import { useEffect, useState, useRef, Suspense } from 'react';
+import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from 'framer-motion';
+import { Gate3D } from './Gate3D';
+import { Scene3D } from './Scene3D';
 import Navigation from './Navigation';
-import Scene3D from './Scene3D';
-import ExplosionTransition from './ExplosionTransition';
+import Lenis from 'lenis';
 
 export default function IntroAnimation() {
     const [loading, setLoading] = useState(true);
@@ -24,28 +26,28 @@ export default function IntroAnimation() {
     // Scroll Logic
     const { scrollY } = useScroll();
 
-    // PARALLAX EXIT TRANSFORMS
-    // As we scroll down (0 to 800), elements move UP at different speeds (negative Y)
-    // Background moves slowly, Foreground moves quickly.
-    const yScrollBg = useTransform(scrollY, [0, 800], [0, -300]);
-    const yScrollGate = useTransform(scrollY, [0, 800], [0, -500]);
-    const yScrollForeground = useTransform(scrollY, [0, 800], [0, -1000]);
+    // ---------------------------------------------------------
+    // SCENE TRANSITION LOGIC (CROSS-FADE)
+    // ---------------------------------------------------------
+    // 0px - 800px:   Scene 1 Active (Gate)
+    // 800px - 1400px: Transition (S1 Fades Out, S2 Fades In)
+    // 1400px+:       Scene 2 Active (Beaches)
 
-    // Lift nav based on scroll
-    const navTop = useTransform(
-        scrollY,
-        [0, 400],
-        isMobile ? ["20%", "20%"] : ["40%", "50%"]
-    );
-    const navLeft = useTransform(
-        scrollY,
-        [0, 400],
-        isMobile ? ["0%", "0%"] : ["50%", "5%"]
-    );
+    // Smooth Cross-Fade
+    const opacityS1 = useTransform(scrollY, [800, 1200], [1, 0]);
+    const opacityS2 = useTransform(scrollY, [800, 1200], [0, 1]);
+
+    // Toggle Pointer Events to ensure S2 is interactive when visible
+    const pointerEventsS1 = useTransform(scrollY, (y) => y < 1000 ? 'auto' : 'none');
+    const pointerEventsS2 = useTransform(scrollY, (y) => y > 1000 ? 'auto' : 'none');
+
+    // UI State (Logo Scaling, Nav)
+    const navTop = useTransform(scrollY, [0, 400], isMobile ? ["20%", "20%"] : ["40%", "50%"]);
+    const navLeft = useTransform(scrollY, [0, 400], isMobile ? ["0%", "0%"] : ["50%", "5%"]);
     const navTranslateX = useTransform(scrollY, [0, 400], [isMobile ? "0%" : "-50%", isMobile ? "0%" : "0%"]);
     const navScale = useTransform(scrollY, [0, 400], [1, 0.8]);
 
-    // Mouse Parallax Logic
+    // Mouse Parallax Logic (Shared by both scenes)
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
 
@@ -53,40 +55,22 @@ export default function IntroAnimation() {
     const springX = useSpring(mouseX, springConfig);
     const springY = useSpring(mouseY, springConfig);
 
-    const xSky = useTransform(springX, [-0.5, 0.5], [15, -15]);
-    const ySky = useTransform(springY, [-0.5, 0.5], [5, -5]);
-    const xMountain = useTransform(springX, [-0.5, 0.5], [25, -25]);
-    const yMountain = useTransform(springY, [-0.5, 0.5], [10, -10]);
+    // Parallax Transforms (Applied to layers in both scenes for consistency)
+    const xParallax1 = useTransform(springX, [-0.5, 0.5], [15, -15]);
+    const yParallax1 = useTransform(springY, [-0.5, 0.5], [5, -5]);
 
-    const xVolcano = useTransform(springX, [-0.5, 0.5], [45, -45]);
-    const yVolcano = useTransform(springY, [-0.5, 0.5], [20, -20]);
-    const xForeground = useTransform(springX, [-0.5, 0.5], [70, -70]);
-    const yForeground = useTransform(springY, [-0.5, 0.5], [30, -30]);
+    const xParallax2 = useTransform(springX, [-0.5, 0.5], [25, -25]);
+    const yParallax2 = useTransform(springY, [-0.5, 0.5], [10, -10]);
 
-    // COMBINED PARALLAX (Mouse + Scroll Exit)
-    // We add the transforms together
-    const ySkyCombined = useTransform([ySky, yScrollBg], ([y, yS]: any[]) => (y as number) + (yS as number));
-    const yMountainCombined = useTransform([yMountain, yScrollBg], ([y, yS]: any[]) => (y as number) + (yS as number));
-    const yVolcanoCombined = useTransform([yVolcano, yScrollBg], ([y, yS]: any[]) => (y as number) + (yS as number));
-    const yForegroundCombined = useTransform([yForeground, yScrollForeground], ([y, yS]: any[]) => (y as number) + (yS as number));
+    const xParallax3 = useTransform(springX, [-0.5, 0.5], [45, -45]);
+    const yParallax3 = useTransform(springY, [-0.5, 0.5], [20, -20]);
 
-    // Scroll Transforms (Visual adjustments)
-    const scaleScrollForeground = useTransform(scrollY, [0, 400], [1, 1.5]);
-    const blurScrollForeground = useTransform(scrollY, [0, 300], ["blur(0px)", "blur(0px)"]); // Disable blur
-    const opacityScrollText = useTransform(scrollY, [0, 200], [1, 0]);
+    const xParallax4 = useTransform(springX, [-0.5, 0.5], [70, -70]);
+    const yParallax4 = useTransform(springY, [-0.5, 0.5], [30, -30]);
 
-    const scaleForegroundCombined = useTransform(
-        [scaleScrollForeground],
-        ([scaleScroll]: any[]) => (scaleScroll as number)
-    );
-
-    // Gate Parallax (Mouse + Scroll)
+    // Gate Parallax
     const xGate = useTransform(springX, [-0.5, 0.5], [60, -60]);
     const yGate = useTransform(springY, [-0.5, 0.5], [25, -25]);
-    const yGateCombined = useTransform([yGate, yScrollGate], ([y, yS]: any[]) => (y as number) + (yS as number));
-
-    // Volcano Blur (Sync with scroll)
-    const blurVolcano = useTransform(scrollY, [0, 600], ["blur(0px)", "blur(12px)"]);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -100,8 +84,6 @@ export default function IntroAnimation() {
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, [mouseX, mouseY]);
 
-    // ... (rest of useEffects) ...
-
     useEffect(() => {
         const loadAssets = async () => {
             // 1. Define Assets
@@ -114,7 +96,7 @@ export default function IntroAnimation() {
                 '/assets/hero/volcano-main.webp',
                 '/assets/hero/foreground.webp'
             ];
-            const glbAsset = '/assets/bali-gate.glb';
+            // const glbAsset = '/assets/bali-gate.glb';
             const animFrames = Array.from({ length: 39 }, (_, i) => `/assets/logo-animation/${i + 1}.webp`);
 
             let loadedCount = 0;
@@ -135,7 +117,7 @@ export default function IntroAnimation() {
                         resolve();
                     };
                     img.onerror = () => {
-                        console.error(`Failed to preload image: ${src}`);
+                        // console.error(`Failed to preload image: ${src}`);
                         updateProgress();
                         resolve();
                     };
@@ -158,9 +140,11 @@ export default function IntroAnimation() {
     }, [progress]);
 
     return (
-        <div className={`relative z-0 w-full bg-[#050505] ${loading ? 'h-screen overflow-hidden' : 'min-h-[150vh]'}`}>
+        <div className={`relative z-0 w-full bg-[#050505] ${loading ? 'h-screen overflow-hidden' : 'min-h-[250vh]'}`}>
 
-            {/* 3. PERSISTENT UI LAYER (Z-100) - Menu follows page */}
+            {/* ------------------------------------------- */}
+            {/* GLOBAL UI (Z-100) - ALWAYS ON TOP           */}
+            {/* ------------------------------------------- */}
             <div className="fixed inset-0 z-[100] pointer-events-none">
                 {/* HEADER */}
                 <motion.div
@@ -240,8 +224,7 @@ export default function IntroAnimation() {
                             left: navLeft,
                             x: navTranslateX,
                             scale: navScale,
-                            transformOrigin: isMobile ? "top left" : "top left",
-                            opacity: isMobile ? opacityScrollText : 1
+                            transformOrigin: isMobile ? "top left" : "top left"
                         }}
                     >
                         <Navigation isMobile={isMobile} />
@@ -272,123 +255,77 @@ export default function IntroAnimation() {
 
             </div>
 
-            {/* ------------------------------------------- */}
-            {/* GATE LAYER (Z-40) - PERSISTENT              */}
-            {/* ------------------------------------------- */}
-            {
-                !loading && (
-                    <motion.div
-                        className="fixed inset-[-5%] w-[110%] h-[110%] z-40 pointer-events-none"
-                        style={{
-                            x: xGate,
-                            y: yGateCombined // Parallax Exit
-                        }}
-                    >
-                        {/* PASS MOUSE TO SCENE */}
-                        <Scene3D zIndex={40} mouse={{ x: springX, y: springY }} isMobile={isMobile} />
+
+            {/* ======================================================================== */}
+            {/* SCENE COMPOSITOR (Fixed Container)                                       */}
+            {/* ======================================================================== */}
+            <div className="fixed inset-0 w-full h-screen overflow-hidden pointer-events-none">
+
+                {/* ------------------------------------------------------------------ */}
+                {/* SCENE 1: THE GATE (Opacity controlled by scroll)                   */}
+                {/* ------------------------------------------------------------------ */}
+                <motion.div
+                    className="absolute inset-0 w-full h-full"
+                    style={{ opacity: opacityS1, pointerEvents: pointerEventsS1 }}
+                >
+                    {/* Background Color */}
+                    <div className="absolute inset-0 -z-[10] bg-[#050505]" />
+
+                    {/* Noise */}
+                    <div className="absolute inset-0 z-[5] mix-blend-overlay opacity-20">
+                        <div className="absolute inset-0 bg-repeat opacity-50" style={{ backgroundImage: 'url(/assets/noise.png)', backgroundSize: '200px' }} />
+                    </div>
+
+                    {/* S1: Sky (Z-10) */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-10" style={{ x: xParallax1, y: yParallax1 }}>
+                        <img src="/assets/hero/bg.webp" className="w-full h-full object-cover opacity-80" alt="Sky" />
                     </motion.div>
-                )
-            }
 
-            {/* ------------------------------------------- */}
-            {/* BACKGROUND SCENE (Z-0) - MOVES UP ON SCROLL */}
-            {/* ------------------------------------------- */}
-            <motion.div
-                className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center z-0"
-                style={{
-                    // Applied via layers individually for parallax depth
-                }}
-            >
-                {/* Base Background Color */}
-                <div className="absolute inset-0 -z-[100] bg-[#050505]" />
+                    {/* S1: Mountains (Z-20) */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-20" style={{ x: xParallax2, y: yParallax2 }}>
+                        <img src="/assets/hero/mountains_back.webp" className="w-full h-full object-cover transform scale-125 -translate-y-[15%] md:scale-100 md:translate-y-0 origin-center" alt="Mountains" />
+                    </motion.div>
 
-                {/* Grainy Gradient */}
-                <div className="absolute inset-0 z-[100] pointer-events-none mix-blend-overlay opacity-20">
-                    <div
-                        className="absolute inset-0 bg-repeat opacity-50"
-                        style={{ backgroundImage: 'url(/assets/noise.png)', backgroundSize: '200px' }}
-                    />
-                </div>
+                    {/* S1: Volcano (Z-30) */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-30" style={{ x: xParallax3, y: yParallax3 }}>
+                        <img src="/assets/hero/volcano-main.webp" className="w-full h-full object-cover object-[70%] md:object-center" alt="Volcano" />
+                        <motion.div
+                            className="absolute top-[40%] left-[50%] w-[100px] h-[100px] bg-orange-600 blur-[60px] rounded-full mix-blend-screen -z-10"
+                            animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.2, 1] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                            style={{ x: "-50%", y: "-50%" }}
+                        />
+                    </motion.div>
 
-                {/* PARALLAX LAYERS (Back to Front) - Positive Z-Indexes */}
+                    {/* S1: 3D Gate (Z-40) */}
+                    {
+                        !loading && (
+                            <motion.div
+                                className="absolute inset-[-5%] w-[110%] h-[110%] z-40"
+                                style={{
+                                    x: xGate,
+                                    y: yGate
+                                }}
+                            >
+                                <Scene3D zIndex={40} mouse={{ x: springX, y: springY }} isMobile={isMobile} />
+                            </motion.div>
+                        )
+                    }
 
-                {/* 1. Sky (z-10) */}
-                <motion.div
-                    className="absolute inset-[-5%] w-[110%] h-[110%] z-10"
-                    style={{ x: xSky, y: ySkyCombined }}
-                    initial={{ scale: 1.1 }}
-                    animate={{ scale: !loading ? 1.0 : 1.1 }}
-                    transition={{ duration: 3.0, delay: 1.0 }}
-                >
-                    <img src="/assets/hero/bg.webp" className="w-full h-full object-cover opacity-80" alt="Background Sky" />
-                </motion.div>
+                    {/* S1: Foreground (Z-50) */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none" style={{ x: xParallax4, y: yParallax4 }}>
+                        <img src="/assets/hero/foreground.webp" className="w-full h-full object-cover transform scale-125 md:scale-100 origin-bottom" alt="Foreground" />
+                    </motion.div>
 
-                {/* 2. Mountains (z-20) */}
-                <motion.div
-                    className="absolute inset-[-5%] w-[110%] h-[110%] z-20"
-                    style={{ x: xMountain, y: yMountainCombined }}
-                    initial={{ y: 30, opacity: 0 }}
-                    animate={{ y: !loading ? 0 : 30, opacity: !loading ? 1 : 0 }}
-                    transition={{ duration: 2.2, delay: 1.2 }}
-                >
-                    <img src="/assets/hero/mountains_back.webp" className="w-full h-full object-cover transform scale-125 -translate-y-[15%] md:scale-100 md:translate-y-0 origin-center" alt="Mountain Back" />
-                </motion.div>
-
-                {/* 3. Volcano (z-30) - RESTORED */}
-                <motion.div
-                    className="absolute inset-[-5%] w-[110%] h-[110%] z-30"
-                    style={{
-                        x: xVolcano,
-                        y: yVolcanoCombined, // Uses scroll exit
-                        filter: blurVolcano
-                    }}
-                    initial={{ scale: 1.1, opacity: 0 }}
-                    animate={{ scale: !loading ? 1 : 1.1, opacity: !loading ? 1 : 0 }}
-                    transition={{ duration: 2.6, delay: 1.6, ease: "easeOut" }}
-                >
-                    <img src="/assets/hero/volcano-main.webp" className="w-full h-full object-cover object-[70%] md:object-center" alt="Volcano Main" />
+                    {/* S1: Text (Z-60) */}
                     <motion.div
-                        className="absolute top-[40%] left-[50%] w-[100px] h-[100px] bg-orange-600 blur-[60px] rounded-full mix-blend-screen -z-10"
-                        animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.2, 1] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        style={{ x: "-50%", y: "-50%" }}
-                    />
-                </motion.div>
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none z-[60]" />
-            </motion.div>
-
-            {/* ------------------------------------------- */}
-            {/* FOREGROUND SCENE (Z-50) - SYNCED SCROLL EXIT*/}
-            {/* ------------------------------------------- */}
-            <motion.div
-                className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center z-50 pointer-events-none"
-            >
-                <motion.div
-                    className="absolute inset-[-5%] w-[110%] h-[110%]"
-                    style={{
-                        x: xForeground,
-                        y: yForegroundCombined, // Uses aggressive scroll exit
-                        scale: scaleForegroundCombined,
-                        filter: blurScrollForeground
-                    }}
-                    initial={{ scale: 1.15, opacity: 0 }}
-                    animate={{ scale: !loading ? 1.05 : 1.15, opacity: !loading ? 1 : 0 }}
-                    transition={{ duration: 3.0, delay: 1.8 }}
-                >
-                    <img src="/assets/hero/foreground.webp" className="w-full h-full object-cover transform scale-125 md:scale-100 origin-bottom" alt="Foreground" />
-                </motion.div>
-
-                {/* Text (Moved Here for Z-Index) */}
-                <motion.div
-                    className="absolute inset-0 flex flex-col items-start justify-end pl-[5%] pb-[10%] md:pb-[5%] z-[70] pointer-events-none"
-                >
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: !loading ? 1 : 0 }}
-                        transition={{ duration: 2.0, delay: 1.5, ease: "easeOut" }}
+                        className="absolute inset-0 flex flex-col items-start justify-end pl-[5%] pb-[10%] md:pb-[5%] z-[60] pointer-events-none"
                     >
-                        <motion.div style={{ opacity: opacityScrollText }}>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: !loading ? 1 : 0 }}
+                            transition={{ duration: 2.0, delay: 1.5, ease: "easeOut" }}
+                        >
                             <h1 className="font-[family-name:var(--font-cormorant)] italic font-light text-[12vw] md:text-[6vw] leading-[1.1] text-[#E5E0D8]">
                                 Travel deeper.
                             </h1>
@@ -397,11 +334,66 @@ export default function IntroAnimation() {
                             </p>
                         </motion.div>
                     </motion.div>
+
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 z-[55]" />
                 </motion.div>
-            </motion.div>
+
+
+                {/* ------------------------------------------------------------------ */}
+                {/* SCENE 2: BEACHES (Opacity controlled by scroll)                    */}
+                {/* ------------------------------------------------------------------ */}
+                <motion.div
+                    className="absolute inset-0 w-full h-full bg-[#0c4a6e]"
+                    style={{ opacity: opacityS2, pointerEvents: pointerEventsS2 }}
+                >
+                    {/* S2: Background (Z-10) - Placeholder */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-10" style={{ x: xParallax1, y: yParallax1 }}>
+                        <div className="w-full h-full bg-gradient-to-b from-[#0f172a] to-[#082f49] opacity-80" />
+                        {/* <img src="/assets/beaches/layer1-sky.webp" ... /> */}
+                    </motion.div>
+
+                    {/* S2: Far Layer (Z-20) - Placeholder */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-20" style={{ x: xParallax2, y: yParallax2 }}>
+                        {/* <img src="/assets/beaches/layer2-far.webp" ... /> */}
+                    </motion.div>
+
+                    {/* S2: Mid Layer (Z-30) - Placeholder */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-30" style={{ x: xParallax3, y: yParallax3 }}>
+                        {/* Visual indicator for Mid Layer */}
+                        {/* <img src="/assets/beaches/layer3-mid.webp" ... /> */}
+                    </motion.div>
+
+                    {/* S2: Near Layer (Z-40) - Placeholder */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-40" style={{ x: xParallax3, y: yParallax3 }}>
+                        {/* <img src="/assets/beaches/layer4-near.webp" ... /> */}
+                    </motion.div>
+
+                    {/* S2: Foreground (Z-50) - Placeholder */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none" style={{ x: xParallax4, y: yParallax4 }}>
+                        {/* Visual indicator for Foreground */}
+                        {/* <img src="/assets/beaches/layer5-foreground.webp" ... /> */}
+                    </motion.div>
+
+                    {/* S2: Text (Z-60) */}
+                    <motion.div
+                        className="absolute inset-0 flex flex-col items-center justify-center text-center z-[60] pointer-events-none"
+                    >
+                        <div>
+                            <h2 className="font-serif text-5xl md:text-7xl text-white mb-6">
+                                Nothing rushes here.
+                            </h2>
+                            <p className="text-white/80 text-lg md:text-xl font-light tracking-wide max-w-2xl mx-auto italic">
+                                And you don't have to, either.
+                            </p>
+                        </div>
+                    </motion.div>
+                </motion.div>
+
+            </div>
 
             {/* Scroll Spacer - Controls the speed of the intro animation */}
-            <div className="h-[150vh]" />
+            <div className="h-[250vh]" />
         </div >
     );
 }
@@ -424,7 +416,6 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
             } else {
                 frame = totalFrames - (step - totalFrames) - 1; // 38 to 1
             }
-            // Ensure frame is clamped
             if (frame < 1) frame = 1;
 
             css += `
@@ -447,7 +438,6 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
     };
 
     const handleMouseLeave = () => {
-        // Don't stop immediately, wait for cycle end
         setShouldStop(true);
     };
 
@@ -477,19 +467,7 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
                     animation: logoLoop 2s steps(1) infinite;
                 }
                 .logo-anim.stopping {
-                     /* 
-                        Keep 2s to ensure NO JUMP/CUT on exit.
-                        Standard smooth finish.
-                     */
                     animation: logoLoop 2s steps(1) infinite;
-                }
-                .logo-static {
-                    background-image: url('/assets/logo-man.webp');
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    background-position: center;
-                    width: 100%;
-                    height: 100%;
                 }
             `}</style>
 
@@ -504,13 +482,13 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
                             width: isMobile ? '90px' : '75px',
                             height: isMobile ? '35px' : '38px',
                             left: '50%',
-                            x: '-50%', // Back to center for final state
+                            x: '-50%',
                         }
                         : {
                             scale: 1.8,
                             top: '50%',
                             y: '-50%',
-                            x: '-40%', // Shifted right (was -42%)
+                            x: '-40%',
                             width: isMobile ? '180px' : '300px',
                             height: isMobile ? '180px' : '300px'
                         }
@@ -518,23 +496,15 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
                 transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
             >
                 <div className="relative w-full h-full">
-                    {/* 1. GHOST LOGO (Background - always visible, low opacity) */}
                     <motion.div className="absolute inset-0 opacity-20">
                         <img src="/assets/logo-man.webp" alt="Ghost Logo" className="w-full h-full object-contain" />
                     </motion.div>
 
-                    {/* 2. FILLING/ANIMATING LOGO (Foreground) */}
                     <motion.div
                         className="absolute inset-0 overflow-hidden"
                         animate={{ clipPath: loading ? `inset(${100 - progress}% 0 0 0)` : 'inset(0% 0 0 0)' }}
                         transition={{ clipPath: { duration: 0.1, ease: "linear" } }}
                     >
-                        {/* 
-                            Logic:
-                            - If Loading: Show Static.
-                            - If Playing: Show Anim Div (with onAnimationIteration).
-                            - Else (Idle): Show Static.
-                        */}
                         {!loading && isPlaying ? (
                             <div
                                 className={`logo-anim ${shouldStop ? 'stopping' : 'playing'}`}
@@ -559,8 +529,6 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
                     )}
                 </AnimatePresence>
             </motion.div>
-
-            {/* EMERGENCY DEBUG OVERLAY REMOVED - Promoted to Main Scene */}
         </div>
     );
 };
