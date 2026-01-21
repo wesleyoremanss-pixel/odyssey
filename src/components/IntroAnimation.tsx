@@ -24,8 +24,12 @@ export default function IntroAnimation() {
     // Scroll Logic
     const { scrollY } = useScroll();
 
-    // Foreground Parallax Exit (Moves up as you scroll down)
-    const yScrollForeground = useTransform(scrollY, [0, 800], [0, -200]);
+    // PARALLAX EXIT TRANSFORMS
+    // As we scroll down (0 to 800), elements move UP at different speeds (negative Y)
+    // Background moves slowly, Foreground moves quickly.
+    const yScrollBg = useTransform(scrollY, [0, 800], [0, -300]);
+    const yScrollGate = useTransform(scrollY, [0, 800], [0, -500]);
+    const yScrollForeground = useTransform(scrollY, [0, 800], [0, -1000]);
 
     // Lift nav based on scroll
     const navTop = useTransform(
@@ -53,22 +57,22 @@ export default function IntroAnimation() {
     const ySky = useTransform(springY, [-0.5, 0.5], [5, -5]);
     const xMountain = useTransform(springX, [-0.5, 0.5], [25, -25]);
     const yMountain = useTransform(springY, [-0.5, 0.5], [10, -10]);
-    // xTemple removed (replaced by 3D)
 
     const xVolcano = useTransform(springX, [-0.5, 0.5], [45, -45]);
     const yVolcano = useTransform(springY, [-0.5, 0.5], [20, -20]);
     const xForeground = useTransform(springX, [-0.5, 0.5], [70, -70]);
     const yForeground = useTransform(springY, [-0.5, 0.5], [30, -30]);
 
-    const yForegroundCombined = useTransform(
-        [yForeground, yScrollForeground],
-        ([yInteraction, yScroll]: any[]) => (yInteraction as number) + (yScroll as number)
-    );
+    // COMBINED PARALLAX (Mouse + Scroll Exit)
+    // We add the transforms together
+    const ySkyCombined = useTransform([ySky, yScrollBg], ([y, yS]: any[]) => (y as number) + (yS as number));
+    const yMountainCombined = useTransform([yMountain, yScrollBg], ([y, yS]: any[]) => (y as number) + (yS as number));
+    const yVolcanoCombined = useTransform([yVolcano, yScrollBg], ([y, yS]: any[]) => (y as number) + (yS as number));
+    const yForegroundCombined = useTransform([yForeground, yScrollForeground], ([y, yS]: any[]) => (y as number) + (yS as number));
 
-    // Scroll Transforms
+    // Scroll Transforms (Visual adjustments)
     const scaleScrollForeground = useTransform(scrollY, [0, 400], [1, 1.5]);
-    const opacityScrollForeground = useTransform(scrollY, [0, 300], [1, 1]);
-    const blurScrollForeground = useTransform(scrollY, [0, 300], ["blur(0px)", "blur(10px)"]);
+    const blurScrollForeground = useTransform(scrollY, [0, 300], ["blur(0px)", "blur(0px)"]); // Disable blur
     const opacityScrollText = useTransform(scrollY, [0, 200], [1, 0]);
 
     const scaleForegroundCombined = useTransform(
@@ -76,30 +80,13 @@ export default function IntroAnimation() {
         ([scaleScroll]: any[]) => (scaleScroll as number)
     );
 
-    // Gate Interaction Progress (0 to 1 over 1600px scroll - 2 Phases)
-    // 0.0 - 0.5: Phase 1 (Pass Through)
-    // 0.5 - 1.0: Phase 2 (Return Dark)
-    const gateProgress = useTransform(scrollY, [0, 1600], [0, 1]);
+    // Gate Parallax (Mouse + Scroll)
+    const xGate = useTransform(springX, [-0.5, 0.5], [60, -60]);
+    const yGate = useTransform(springY, [-0.5, 0.5], [25, -25]);
+    const yGateCombined = useTransform([yGate, yScrollGate], ([y, yS]: any[]) => (y as number) + (yS as number));
 
     // Volcano Blur (Sync with scroll)
     const blurVolcano = useTransform(scrollY, [0, 600], ["blur(0px)", "blur(12px)"]);
-    const opacityVolcano = useTransform(scrollY, [0, 600], [1, 0.4]);
-
-    // SCROLL-DRIVEN TRANSITION LOGIC
-    // 1. Explosion Progress: Starts at 85% of Phase 1 (0.425), ends at 0.5
-    const explosionProgress = useTransform(gateProgress, [0.425, 0.5], [0, 1]);
-
-    // 2. Intro Opacity: Fades out smoothly, crossing with Darkness
-    // [0.3 -> 0.5] Fades OUT (Phase 1 End)
-    const introOpacity = useTransform(gateProgress, [0.3, 0.5], [1, 0]);
-
-    // 3. Pointer Events: Disable intro interactions when transition starts
-    const introPointerEvents = useTransform(gateProgress, (v) => v > 0.45 ? 'none' : 'auto');
-
-
-    // Gate Parallax Logic (Moved to Top Level)
-    const xGate = useTransform(springX, [-0.5, 0.5], [60, -60]); // Between 45 and 70
-    const yGate = useTransform(springY, [-0.5, 0.5], [25, -25]);  // Between 20 and 30
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -170,21 +157,8 @@ export default function IntroAnimation() {
         }
     }, [progress]);
 
-    // 4. Darkness "Leak" Logic
-    // Fades in behind the gate as we approach, replacing the sunny background
-    // [0.3 -> 0.5] Fades IN (Synced with Intro Fade Out)
-    const darknessOpacity = useTransform(gateProgress, [0.3, 0.5], [0, 1]);
-
-    // UI doesn't fade, but might move/scale.
-    // Ensure UI is visible over the portal.
-
     return (
-        <div className={`relative z-0 w-full bg-[#050505] ${loading ? 'h-screen overflow-hidden' : 'min-h-[300vh]'}`}>
-
-            {/* 1. FLASH EFFECT REMOVED */}
-
-            {/* 2. PORTAL LAYER REMOVED (Moved to Z-35 behind gate) */}
-
+        <div className={`relative z-0 w-full bg-[#050505] ${loading ? 'h-screen overflow-hidden' : 'min-h-[150vh]'}`}>
 
             {/* 3. PERSISTENT UI LAYER (Z-100) - Menu follows page */}
             <div className="fixed inset-0 z-[100] pointer-events-none">
@@ -270,10 +244,6 @@ export default function IntroAnimation() {
                             opacity: isMobile ? opacityScrollText : 1
                         }}
                     >
-                        {/* Note: opacityScrollText currently fades out text on scroll. 
-                             If user wants menu to follow page, we might need to DISABLE this opacity fade 
-                             or update standard Nav to be fixed after intro. 
-                             For now, I keep the props but ensure it's rendered in this persistent layer. */ }
                         <Navigation isMobile={isMobile} />
                     </motion.div>
                 )}
@@ -302,21 +272,6 @@ export default function IntroAnimation() {
 
             </div>
 
-
-
-
-            {/* ------------------------------------------- */}
-            {/* NEW: DARKNESS LAYER (Z-35) - PERSISTENT     */}
-            {/* ------------------------------------------- */}
-            <motion.div
-                className="fixed inset-0 z-35 flex items-center justify-center overflow-hidden pointer-events-none"
-                style={{ opacity: darknessOpacity }}
-            >
-                <img src="/assets/bg-dark.webp" className="w-full h-full object-cover" alt="Darkness Leak" />
-            </motion.div>
-
-
-
             {/* ------------------------------------------- */}
             {/* GATE LAYER (Z-40) - PERSISTENT              */}
             {/* ------------------------------------------- */}
@@ -326,20 +281,22 @@ export default function IntroAnimation() {
                         className="fixed inset-[-5%] w-[110%] h-[110%] z-40 pointer-events-none"
                         style={{
                             x: xGate,
-                            y: yGate
+                            y: yGateCombined // Parallax Exit
                         }}
                     >
-                        <Scene3D zIndex={40} scrollProgress={gateProgress} isMobile={isMobile} />
+                        {/* PASS MOUSE TO SCENE */}
+                        <Scene3D zIndex={40} mouse={{ x: springX, y: springY }} isMobile={isMobile} />
                     </motion.div>
                 )
             }
 
-
+            {/* ------------------------------------------- */}
+            {/* BACKGROUND SCENE (Z-0) - MOVES UP ON SCROLL */}
+            {/* ------------------------------------------- */}
             <motion.div
                 className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center z-0"
                 style={{
-                    opacity: introOpacity,
-                    pointerEvents: introPointerEvents
+                    // Applied via layers individually for parallax depth
                 }}
             >
                 {/* Base Background Color */}
@@ -358,7 +315,7 @@ export default function IntroAnimation() {
                 {/* 1. Sky (z-10) */}
                 <motion.div
                     className="absolute inset-[-5%] w-[110%] h-[110%] z-10"
-                    style={{ x: xSky, y: ySky }}
+                    style={{ x: xSky, y: ySkyCombined }}
                     initial={{ scale: 1.1 }}
                     animate={{ scale: !loading ? 1.0 : 1.1 }}
                     transition={{ duration: 3.0, delay: 1.0 }}
@@ -369,7 +326,7 @@ export default function IntroAnimation() {
                 {/* 2. Mountains (z-20) */}
                 <motion.div
                     className="absolute inset-[-5%] w-[110%] h-[110%] z-20"
-                    style={{ x: xMountain, y: yMountain }}
+                    style={{ x: xMountain, y: yMountainCombined }}
                     initial={{ y: 30, opacity: 0 }}
                     animate={{ y: !loading ? 0 : 30, opacity: !loading ? 1 : 0 }}
                     transition={{ duration: 2.2, delay: 1.2 }}
@@ -382,9 +339,8 @@ export default function IntroAnimation() {
                     className="absolute inset-[-5%] w-[110%] h-[110%] z-30"
                     style={{
                         x: xVolcano,
-                        y: yVolcano,
+                        y: yVolcanoCombined, // Uses scroll exit
                         filter: blurVolcano
-                        // Opacity controlled by Parent (Intro Scene)
                     }}
                     initial={{ scale: 1.1, opacity: 0 }}
                     animate={{ scale: !loading ? 1 : 1.1, opacity: !loading ? 1 : 0 }}
@@ -399,36 +355,20 @@ export default function IntroAnimation() {
                     />
                 </motion.div>
 
-
-
-
-
-                {/* 4. THE GATE (3D) (z-40) */}
-
-
-
-
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none z-[60]" />
-
-
-
             </motion.div>
 
             {/* ------------------------------------------- */}
-            {/* FOREGROUND SCENE (Z-50) - SYNCED FADE       */}
+            {/* FOREGROUND SCENE (Z-50) - SYNCED SCROLL EXIT*/}
             {/* ------------------------------------------- */}
             <motion.div
                 className="fixed inset-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center z-50 pointer-events-none"
-                style={{
-                    opacity: introOpacity, // SYNC FADE WITH BG
-                    pointerEvents: introPointerEvents
-                }}
             >
                 <motion.div
                     className="absolute inset-[-5%] w-[110%] h-[110%]"
                     style={{
                         x: xForeground,
-                        y: yForegroundCombined,
+                        y: yForegroundCombined, // Uses aggressive scroll exit
                         scale: scaleForegroundCombined,
                         filter: blurScrollForeground
                     }}
@@ -459,8 +399,9 @@ export default function IntroAnimation() {
                     </motion.div>
                 </motion.div>
             </motion.div>
+
             {/* Scroll Spacer - Controls the speed of the intro animation */}
-            <div className="h-[200vh]" />
+            <div className="h-[150vh]" />
         </div >
     );
 }
