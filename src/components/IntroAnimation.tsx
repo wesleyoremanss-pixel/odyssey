@@ -5,7 +5,7 @@ import { Environment, useGLTF } from '@react-three/drei';
 import { useEffect, useState, useRef, Suspense } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from 'framer-motion';
 import { Gate3D } from './Gate3D';
-import { Scene3D } from './Scene3D';
+import Scene3D from './Scene3D';
 import Navigation from './Navigation';
 import Lenis from 'lenis';
 
