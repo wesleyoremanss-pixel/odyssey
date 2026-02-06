@@ -11,11 +11,11 @@ export function Gate3D({ mouse, isMobile }: { mouse: { x: any, y: any }, isMobil
     const gateRef = useRef<THREE.Group>(null);
 
     // Initial transforms
-    // Mobile: Closer to center (1.2 instead of 2.452)
-    const initialX = isMobile ? 1.2 : 2.452;
+    // Mobile: Closer to center (0.5) and smaller (0.6)
+    const initialX = isMobile ? 0.5 : 2.452;
     const initialPos = new THREE.Vector3(initialX, -1.5, 0.168);
     const initialRot = new THREE.Euler(0, THREE.MathUtils.degToRad(-20), 0);
-    const initialScale = new THREE.Vector3(0.8, 0.8, 0.8);
+    const initialScale = isMobile ? new THREE.Vector3(0.55, 0.55, 0.55) : new THREE.Vector3(0.8, 0.8, 0.8);
 
     useFrame((state) => {
         if (!gateRef.current) return;

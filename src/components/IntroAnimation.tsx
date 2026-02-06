@@ -37,6 +37,9 @@ export default function IntroAnimation() {
     const opacityS1 = useTransform(scrollY, [800, 1200], [1, 0]);
     const opacityS2 = useTransform(scrollY, [800, 1200], [0, 1]);
 
+    // Text Opacity on Scroll (Fades out as menu appears)
+    const opacityHeroText = useTransform(scrollY, [0, 300], [1, 0]);
+
     // Toggle Pointer Events to ensure S2 is interactive when visible
     const pointerEventsS1 = useTransform(scrollY, (y) => y < 1000 ? 'auto' : 'none');
     const pointerEventsS2 = useTransform(scrollY, (y) => y > 1000 ? 'auto' : 'none');
@@ -320,6 +323,7 @@ export default function IntroAnimation() {
                     {/* S1: Text (Z-60) */}
                     <motion.div
                         className="absolute inset-0 flex flex-col items-start justify-end pl-[5%] pb-[10%] md:pb-[5%] z-[60] pointer-events-none"
+                        style={{ opacity: opacityHeroText }}
                     >
                         <motion.div
                             initial={{ opacity: 0 }}
