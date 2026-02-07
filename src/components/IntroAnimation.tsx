@@ -3,7 +3,7 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Environment, useGLTF } from '@react-three/drei';
 import { useEffect, useState, useRef, Suspense } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence, MotionValue } from 'framer-motion';
 import { Gate3D } from './Gate3D';
 import Scene3D from './Scene3D';
 import Navigation from './Navigation';
@@ -402,18 +402,25 @@ export default function IntroAnimation() {
                         <img src="/assets/beach/trees.webp" className="w-full h-full object-cover" alt="Trees" />
                     </motion.div>
 
-                    {/* S2: Text (Z-60) - "Burada mekân sabit değil." */}
-                    {/* Position: Bottom-Left / Left-Middle */}
+                    {/* S2: Text (Z-60) - Kinetic Typography */}
+                    {/* Position: Bottom-Right (Fix) */}
                     <motion.div
-                        className="absolute inset-0 flex flex-col items-start justify-end pl-[10%] pb-[15%] md:pb-[10%] z-[60] pointer-events-none text-left"
+                        className="absolute inset-0 flex flex-col items-end justify-end pr-[5%] pb-[10%] z-[60] pointer-events-none text-right"
                     >
-                        <div>
+                        <div className="flex flex-col items-end">
                             <h2 className="font-serif text-5xl md:text-6xl text-white mb-4 leading-tight">
-                                Burada mekân <br /> sabit değil.
+                                <KineticText text="Space is not" scrollY={scrollY} start={1100} end={1400} className="block" />
+                                <KineticText text="static here." scrollY={scrollY} start={1200} end={1500} className="block" />
                             </h2>
-                            <p className="text-white/80 text-lg md:text-xl font-light tracking-wide max-w-xl italic">
-                                Zaman bile derinliğin bir parçası.
-                            </p>
+                            <div className="text-white/80 text-lg md:text-xl font-light tracking-wide max-w-xl italic">
+                                <KineticText
+                                    text="Even time is part of the depth."
+                                    scrollY={scrollY}
+                                    start={1300}
+                                    end={1600}
+                                    className=""
+                                />
+                            </div>
                         </div>
                     </motion.div>
                 </motion.div>
@@ -425,6 +432,36 @@ export default function IntroAnimation() {
         </div >
     );
 }
+
+// Kinetic Text Component (Shopify Editions Style)
+// Splits text into words and animates them individually based on scroll
+const KineticText = ({ text, scrollY, start, end, className }: { text: string, scrollY: MotionValue<number>, start: number, end: number, className?: string }) => {
+    const words = text.split(" ");
+    return (
+        <span className={className}>
+            {words.map((word, i) => {
+                // Stagger each word slightly within the range
+                const step = (end - start) / (words.length + 2);
+                const wordStart = start + (i * step);
+                const wordEnd = wordStart + 150; // Transition duration in px
+
+                const opacity = useTransform(scrollY, [wordStart, wordEnd], [0, 1]);
+                const y = useTransform(scrollY, [wordStart, wordEnd], [30, 0]);
+                const blur = useTransform(scrollY, [wordStart, wordEnd], ["blur(10px)", "blur(0px)"]);
+
+                return (
+                    <motion.span
+                        key={i}
+                        style={{ opacity, y, filter: blur }}
+                        className="inline-block mr-[0.25em]"
+                    >
+                        {word}
+                    </motion.span>
+                );
+            })}
+        </span>
+    );
+};
 
 const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progress: number, isMobile: boolean }) => {
     // Generate Keyframes for CSS Animation
