@@ -27,22 +27,35 @@ export default function IntroAnimation() {
     const { scrollY } = useScroll();
 
     // ---------------------------------------------------------
-    // SCENE TRANSITION LOGIC (CROSS-FADE)
+    // SCENE TRANSITION LOGIC (PHASE 1 -> TRANSITION -> PHASE 2)
     // ---------------------------------------------------------
-    // 0px - 800px:   Scene 1 Active (Gate)
-    // 800px - 1400px: Transition (S1 Fades Out, S2 Fades In)
-    // 1400px+:       Scene 2 Active (Beaches)
+    // 0px - 600px:   Phase 1 Active (Gate)
+    // 600px - 1400px: Transition (Detailed breakdown below)
+    // 1400px+:       Phase 2 Active (Beaches)
 
-    // Smooth Cross-Fade
+    // Phase 1: Visual Degradation (Blur + Contrast Drop + Cool Color)
+    // Starts fading OUT visually around 800px, fully gone by 1200px
     const opacityS1 = useTransform(scrollY, [800, 1200], [1, 0]);
+    const blurS1 = useTransform(scrollY, [800, 1200], ["blur(0px)", "blur(10px)"]);
+    const contrastS1 = useTransform(scrollY, [800, 1200], ["contrast(100%)", "contrast(80%)"]);
+    const scaleS1 = useTransform(scrollY, [800, 1200], [1, 1.05]); // "Nefes alır gibi genişler"
+
+    // Phase 2: Visual Emergence
+    // Starts fading IN around 800px, fully visible by 1200px
     const opacityS2 = useTransform(scrollY, [800, 1200], [0, 1]);
 
-    // Text Opacity on Scroll (Fades out as menu appears)
-    const opacityHeroText = useTransform(scrollY, [0, 300], [1, 0]);
+    // Phase 1 Text Logic (Staggered Fade Out)
+    // 1. "Travel deeper" (Main Title) -> Fades out fast (0-300px)
+    const opacityTextTitle = useTransform(scrollY, [0, 300], [1, 0]);
+    // 2. "Not faster. Not louder." (Subtext Lines 1-2) -> Fades out med (200-500px)
+    const opacityTextSubMiddle = useTransform(scrollY, [200, 500], [1, 0]);
+    // 3. "Just deeper." (Subtext Last Line) -> Fades out LAST (600-900px)
+    // Overlaps with Phase 2 start (800px)
+    const opacityTextLastLine = useTransform(scrollY, [600, 900], [1, 0]);
 
-    // Toggle Pointer Events to ensure S2 is interactive when visible
+    // Toggle Pointer Events
     const pointerEventsS1 = useTransform(scrollY, (y) => y < 1000 ? 'auto' : 'none');
-    const pointerEventsS2 = useTransform(scrollY, (y) => y > 1000 ? 'auto' : 'none');
+    const pointerEventsS2 = useTransform(scrollY, (y) => y > 1000 ? 'auto' : 'none'); // Increased interaction range for S2
 
     // UI State (Logo Scaling, Nav)
     const navTop = useTransform(scrollY, [0, 400], isMobile ? ["20%", "20%"] : ["40%", "50%"]);
@@ -50,7 +63,7 @@ export default function IntroAnimation() {
     const navTranslateX = useTransform(scrollY, [0, 400], [isMobile ? "0%" : "-50%", isMobile ? "0%" : "0%"]);
     const navScale = useTransform(scrollY, [0, 400], [1, 0.8]);
 
-    // Mouse Parallax Logic (Shared by both scenes)
+    // Mouse Parallax Logic
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
 
@@ -58,22 +71,19 @@ export default function IntroAnimation() {
     const springX = useSpring(mouseX, springConfig);
     const springY = useSpring(mouseY, springConfig);
 
-    // Parallax Transforms (Applied to layers in both scenes for consistency)
-    const xParallax1 = useTransform(springX, [-0.5, 0.5], [15, -15]);
-    const yParallax1 = useTransform(springY, [-0.5, 0.5], [5, -5]);
+    // Parallax Transforms (Applied to Phase 2 Layers)
+    // "Ön katmanlar daha çok, arka katmanlar neredeyse hiç"
+    const p2_Sky = useTransform(springX, [-0.5, 0.5], [2, -2]); // Very minimal
+    const p2_Mount = useTransform(springX, [-0.5, 0.5], [5, -5]); // Minimal
+    const p2_Sea = useTransform(springX, [-0.5, 0.5], [10, -10]); // Subtle
+    const p2_Sand = useTransform(springX, [-0.5, 0.5], [20, -20]); // Noticeable
+    const p2_Trees = useTransform(springX, [-0.5, 0.5], [35, -35]); // Most movement
 
-    const xParallax2 = useTransform(springX, [-0.5, 0.5], [25, -25]);
-    const yParallax2 = useTransform(springY, [-0.5, 0.5], [10, -10]);
-
-    const xParallax3 = useTransform(springX, [-0.5, 0.5], [45, -45]);
-    const yParallax3 = useTransform(springY, [-0.5, 0.5], [20, -20]);
-
-    const xParallax4 = useTransform(springX, [-0.5, 0.5], [70, -70]);
-    const yParallax4 = useTransform(springY, [-0.5, 0.5], [30, -30]);
-
-    // Gate Parallax
+    // Gate Parallax (Existing)
     const xGate = useTransform(springX, [-0.5, 0.5], [60, -60]);
     const yGate = useTransform(springY, [-0.5, 0.5], [25, -25]);
+    const xParallaxBG = useTransform(springX, [-0.5, 0.5], [15, -15]); // S1 BG
+    const yParallaxBG = useTransform(springY, [-0.5, 0.5], [5, -5]);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -99,9 +109,7 @@ export default function IntroAnimation() {
                 '/assets/hero/volcano-main.webp',
                 '/assets/hero/foreground.webp'
             ];
-            // const glbAsset = '/assets/bali-gate.glb';
             const animFrames = Array.from({ length: 39 }, (_, i) => `/assets/logo-animation/${i + 1}.webp`);
-
             let loadedCount = 0;
             const total = criticalImages.length + animFrames.length;
 
@@ -115,23 +123,11 @@ export default function IntroAnimation() {
                 return new Promise<void>((resolve) => {
                     const img = new Image();
                     img.src = src;
-                    img.onload = () => {
-                        updateProgress();
-                        resolve();
-                    };
-                    img.onerror = () => {
-                        // console.error(`Failed to preload image: ${src}`);
-                        updateProgress();
-                        resolve();
-                    };
+                    img.onload = () => { updateProgress(); resolve(); };
+                    img.onerror = () => { updateProgress(); resolve(); };
                 });
             };
-
-            // 2. Load Critical First (Parallel)
-            await Promise.all(criticalImages.map(src => loadImage(src)));
-
-            // 3. Load Animation Frames (Parallel, but after Critical)
-            await Promise.all(animFrames.map(src => loadImage(src)));
+            await Promise.all([...criticalImages, ...animFrames].map(src => loadImage(src)));
         };
         loadAssets();
     }, []);
@@ -145,11 +141,8 @@ export default function IntroAnimation() {
     return (
         <div className={`relative z-0 w-full bg-[#050505] ${loading ? 'h-screen overflow-hidden' : 'min-h-[250vh]'}`}>
 
-            {/* ------------------------------------------- */}
-            {/* GLOBAL UI (Z-100) - ALWAYS ON TOP           */}
-            {/* ------------------------------------------- */}
             <div className="fixed inset-0 z-[100] pointer-events-none">
-                {/* HEADER */}
+                {/* HEADER - LOGO */}
                 <motion.div
                     className="absolute top-0 left-0 w-full flex justify-center items-start pt-0 md:pt-0"
                     initial={{ opacity: 0 }}
@@ -182,7 +175,7 @@ export default function IntroAnimation() {
                     </div>
                 </motion.div>
 
-                {/* Menu Overlay */}
+                {/* MENU OVERLAY */}
                 <AnimatePresence>
                     {menuOpen && (
                         <motion.div
@@ -215,7 +208,7 @@ export default function IntroAnimation() {
                     )}
                 </AnimatePresence>
 
-                {/* Navigation (Sticky/Parallax behavior maintained via useTransform) */}
+                {/* NAVIGATION */}
                 {!loading && (
                     <motion.div
                         className="absolute pointer-events-auto"
@@ -234,7 +227,7 @@ export default function IntroAnimation() {
                     </motion.div>
                 )}
 
-                {/* Loading / Transition Logo */}
+                {/* LOADING LOGO */}
                 <motion.div className="fixed inset-0 z-[101] pointer-events-none">
                     <motion.div
                         className="absolute left-1/2 flex items-center justify-center pointer-events-auto"
@@ -255,7 +248,6 @@ export default function IntroAnimation() {
                         <LogoAnimator loading={loading} progress={progress} isMobile={isMobile} />
                     </motion.div>
                 </motion.div>
-
             </div>
 
 
@@ -265,11 +257,16 @@ export default function IntroAnimation() {
             <div className="fixed inset-0 w-full h-screen overflow-hidden pointer-events-none">
 
                 {/* ------------------------------------------------------------------ */}
-                {/* SCENE 1: THE GATE (Opacity controlled by scroll)                   */}
+                {/* SCENE 1: THE GATE (Phase 1)                                        */}
                 {/* ------------------------------------------------------------------ */}
                 <motion.div
                     className="absolute inset-0 w-full h-full"
-                    style={{ opacity: opacityS1, pointerEvents: pointerEventsS1 }}
+                    style={{
+                        opacity: opacityS1,
+                        pointerEvents: pointerEventsS1,
+                        filter: blurS1,  // Applies blur + contrast drop
+                        scale: scaleS1   // Subtle breathing expansion
+                    }}
                 >
                     {/* Background Color */}
                     <div className="absolute inset-0 -z-[10] bg-[#050505]" />
@@ -280,17 +277,17 @@ export default function IntroAnimation() {
                     </div>
 
                     {/* S1: Sky (Z-10) */}
-                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-10" style={{ x: xParallax1, y: yParallax1 }}>
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-10" style={{ x: xParallaxBG, y: yParallaxBG }}>
                         <img src="/assets/hero/bg.webp" className="w-full h-full object-cover opacity-80" alt="Sky" />
                     </motion.div>
 
                     {/* S1: Mountains (Z-20) */}
-                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-20" style={{ x: xParallax2, y: yParallax2 }}>
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-20" style={{ x: xParallaxBG, y: yParallaxBG }}>
                         <img src="/assets/hero/mountains_back.webp" className="w-full h-full object-cover transform scale-125 -translate-y-[15%] md:scale-100 md:translate-y-0 origin-center" alt="Mountains" />
                     </motion.div>
 
                     {/* S1: Volcano (Z-30) */}
-                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-30" style={{ x: xParallax3, y: yParallax3 }}>
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-30" style={{ x: xParallaxBG, y: yParallaxBG }}>
                         <img src="/assets/hero/volcano-main.webp" className="w-full h-full object-cover object-[70%] md:object-center" alt="Volcano" />
                         <motion.div
                             className="absolute top-[40%] left-[50%] w-[100px] h-[100px] bg-orange-600 blur-[60px] rounded-full mix-blend-screen -z-10"
@@ -307,7 +304,8 @@ export default function IntroAnimation() {
                                 className="absolute inset-[-5%] w-[110%] h-[110%] z-40"
                                 style={{
                                     x: xGate,
-                                    y: yGate
+                                    y: yGate,
+                                    // Apply contrast filter here too if needed, but parent filter handles it
                                 }}
                             >
                                 <Scene3D zIndex={40} mouse={{ x: springX, y: springY }} isMobile={isMobile} />
@@ -316,79 +314,102 @@ export default function IntroAnimation() {
                     }
 
                     {/* S1: Foreground (Z-50) */}
-                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none" style={{ x: xParallax4, y: yParallax4 }}>
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none" style={{ x: xParallaxBG, y: yParallaxBG }}>
                         <img src="/assets/hero/foreground.webp" className="w-full h-full object-cover transform scale-125 md:scale-100 origin-bottom" alt="Foreground" />
                     </motion.div>
 
-                    {/* S1: Text (Z-60) */}
+                    {/* S1: Text (Z-60) - Staggered Fade */}
                     <motion.div
                         className="absolute inset-0 flex flex-col items-start justify-end pl-[5%] pb-[10%] md:pb-[5%] z-[60] pointer-events-none"
-                        style={{ opacity: opacityHeroText }}
                     >
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: !loading ? 1 : 0 }}
                             transition={{ duration: 2.0, delay: 1.5, ease: "easeOut" }}
+                            className="flex flex-col items-start"
                         >
-                            <h1 className="font-[family-name:var(--font-cormorant)] italic font-light text-[12vw] md:text-[6vw] leading-[1.1] text-[#E5E0D8]">
+                            {/* Main Title: Travel deeper. */}
+                            <motion.h1
+                                className="font-[family-name:var(--font-cormorant)] italic font-light text-[12vw] md:text-[6vw] leading-[1.1] text-[#E5E0D8]"
+                                style={{ opacity: opacityTextTitle }}
+                            >
                                 Travel deeper.
-                            </h1>
-                            <p className="mt-2 md:mt-4 font-[family-name:var(--font-cormorant)] text-lg md:text-2xl text-[#E5E0D8]/80 italic">
-                                Not faster. Not louder. Just deeper.
-                            </p>
+                            </motion.h1>
+
+                            {/* Subtext Wrapper */}
+                            <div className="mt-2 md:mt-4 font-[family-name:var(--font-cormorant)] text-lg md:text-2xl text-[#E5E0D8]/80 italic">
+                                {/* Lines 1-2: Not faster. Not louder. */}
+                                <motion.p
+                                    className="leading-relaxed"
+                                    style={{ opacity: opacityTextSubMiddle }}
+                                >
+                                    Not faster. <br />
+                                    Not louder.
+                                </motion.p>
+
+                                {/* Line 3: Just deeper. (Last to fade) */}
+                                <motion.p
+                                    className="leading-relaxed text-[#E5E0D8]"
+                                    style={{ opacity: opacityTextLastLine }}
+                                >
+                                    Just deeper.
+                                </motion.p>
+                            </div>
                         </motion.div>
                     </motion.div>
 
-                    {/* Gradient Overlay */}
+                    {/* Gradient Overlay (Phase 1 specific) */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 z-[55]" />
                 </motion.div>
 
 
                 {/* ------------------------------------------------------------------ */}
-                {/* SCENE 2: BEACHES (Opacity controlled by scroll)                    */}
+                {/* SCENE 2: BEACHES (Phase 2)                                         */}
                 {/* ------------------------------------------------------------------ */}
                 <motion.div
                     className="absolute inset-0 w-full h-full bg-[#0c4a6e]"
                     style={{ opacity: opacityS2, pointerEvents: pointerEventsS2 }}
                 >
-                    {/* S2: Background (Z-10) - Placeholder */}
-                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-10" style={{ x: xParallax1, y: yParallax1 }}>
-                        <div className="w-full h-full bg-gradient-to-b from-[#0f172a] to-[#082f49] opacity-80" />
-                        {/* <img src="/assets/beaches/layer1-sky.webp" ... /> */}
+                    {/* S2: Background (Z-10) - sky_back */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-10" style={{ x: p2_Sky, y: 0 }}>
+                        <div className="w-full h-full bg-gradient-to-b from-[#87CEEB] to-[#E0F7FA] opacity-90" />
+                        {/* <img src="/assets/beaches/sky_back.webp" ... /> */}
                     </motion.div>
 
-                    {/* S2: Far Layer (Z-20) - Placeholder */}
-                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-20" style={{ x: xParallax2, y: yParallax2 }}>
-                        {/* <img src="/assets/beaches/layer2-far.webp" ... /> */}
+                    {/* S2: Far Layer (Z-20) - distant_mountains */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-20" style={{ x: p2_Mount, y: 0 }}>
+                        {/* Placeholder: Light Grey Mountains */}
+                        {/* <img src="/assets/beaches/distant_mountains.webp" ... /> */}
                     </motion.div>
 
-                    {/* S2: Mid Layer (Z-30) - Placeholder */}
-                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-30" style={{ x: xParallax3, y: yParallax3 }}>
-                        {/* Visual indicator for Mid Layer */}
-                        {/* <img src="/assets/beaches/layer3-mid.webp" ... /> */}
+                    {/* S2: Mid Layer (Z-30) - sea_back */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-30" style={{ x: p2_Sea, y: 0 }}>
+                        {/* Placeholder: Blue Sea */}
+                        {/* <img src="/assets/beaches/sea_back.webp" ... /> */}
                     </motion.div>
 
-                    {/* S2: Near Layer (Z-40) - Placeholder */}
-                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-40" style={{ x: xParallax3, y: yParallax3 }}>
-                        {/* <img src="/assets/beaches/layer4-near.webp" ... /> */}
+                    {/* S2: Near Layer (Z-40) - sand */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-40" style={{ x: p2_Sand, y: 0 }}>
+                        {/* <img src="/assets/beaches/sand.webp" ... /> */}
                     </motion.div>
 
-                    {/* S2: Foreground (Z-50) - Placeholder */}
-                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none" style={{ x: xParallax4, y: yParallax4 }}>
-                        {/* Visual indicator for Foreground */}
-                        {/* <img src="/assets/beaches/layer5-foreground.webp" ... /> */}
+                    {/* S2: Foreground (Z-50) - trees */}
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none" style={{ x: p2_Trees, y: 0 }}>
+                        {/* Visual indicator for Trees / Foreground */}
+                        {/* <img src="/assets/beaches/trees.webp" ... /> */}
                     </motion.div>
 
-                    {/* S2: Text (Z-60) */}
+                    {/* S2: Text (Z-60) - "Burada mekân sabit değil." */}
+                    {/* Position: Bottom-Left / Left-Middle */}
                     <motion.div
-                        className="absolute inset-0 flex flex-col items-center justify-center text-center z-[60] pointer-events-none"
+                        className="absolute inset-0 flex flex-col items-start justify-end pl-[10%] pb-[15%] md:pb-[10%] z-[60] pointer-events-none text-left"
                     >
                         <div>
-                            <h2 className="font-serif text-5xl md:text-7xl text-white mb-6">
-                                Nothing rushes here.
+                            <h2 className="font-serif text-5xl md:text-6xl text-white mb-4 leading-tight">
+                                Burada mekân <br /> sabit değil.
                             </h2>
-                            <p className="text-white/80 text-lg md:text-xl font-light tracking-wide max-w-2xl mx-auto italic">
-                                And you don't have to, either.
+                            <p className="text-white/80 text-lg md:text-xl font-light tracking-wide max-w-xl italic">
+                                Zaman bile derinliğin bir parçası.
                             </p>
                         </div>
                     </motion.div>
