@@ -107,7 +107,14 @@ export default function IntroAnimation() {
                 '/assets/hero/bg.webp',
                 '/assets/hero/mountains_back.webp',
                 '/assets/hero/volcano-main.webp',
-                '/assets/hero/foreground.webp'
+                '/assets/hero/foreground.webp',
+                // Phase 2 Assets
+                '/assets/beach/sky_back.webp',
+                '/assets/beach/distant_mountains.webp',
+                '/assets/beach/sea_back.webp',
+                '/assets/beach/sand.webp',
+                '/assets/beach/trees.webp',
+                '/assets/beach/base_fill.webp'
             ];
             const animFrames = Array.from({ length: 39 }, (_, i) => `/assets/logo-animation/${i + 1}.webp`);
             let loadedCount = 0;
@@ -372,31 +379,27 @@ export default function IntroAnimation() {
                 >
                     {/* S2: Background (Z-10) - sky_back */}
                     <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-10" style={{ x: p2_Sky, y: 0 }}>
-                        <div className="w-full h-full bg-gradient-to-b from-[#87CEEB] to-[#E0F7FA] opacity-90" />
-                        {/* <img src="/assets/beaches/sky_back.webp" ... /> */}
+                        <img src="/assets/beach/sky_back.webp" className="w-full h-full object-cover" alt="Sky" />
                     </motion.div>
 
                     {/* S2: Far Layer (Z-20) - distant_mountains */}
                     <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-20" style={{ x: p2_Mount, y: 0 }}>
-                        {/* Placeholder: Light Grey Mountains */}
-                        {/* <img src="/assets/beaches/distant_mountains.webp" ... /> */}
+                        <img src="/assets/beach/distant_mountains.webp" className="w-full h-full object-cover" alt="Mountains" />
                     </motion.div>
 
                     {/* S2: Mid Layer (Z-30) - sea_back */}
                     <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-30" style={{ x: p2_Sea, y: 0 }}>
-                        {/* Placeholder: Blue Sea */}
-                        {/* <img src="/assets/beaches/sea_back.webp" ... /> */}
+                        <img src="/assets/beach/sea_back.webp" className="w-full h-full object-cover" alt="Sea" />
                     </motion.div>
 
                     {/* S2: Near Layer (Z-40) - sand */}
                     <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-40" style={{ x: p2_Sand, y: 0 }}>
-                        {/* <img src="/assets/beaches/sand.webp" ... /> */}
+                        <img src="/assets/beach/sand.webp" className="w-full h-full object-cover" alt="Sand" />
                     </motion.div>
 
                     {/* S2: Foreground (Z-50) - trees */}
                     <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none" style={{ x: p2_Trees, y: 0 }}>
-                        {/* Visual indicator for Trees / Foreground */}
-                        {/* <img src="/assets/beaches/trees.webp" ... /> */}
+                        <img src="/assets/beach/trees.webp" className="w-full h-full object-cover" alt="Trees" />
                     </motion.div>
 
                     {/* S2: Text (Z-60) - "Burada mekân sabit değil." */}
