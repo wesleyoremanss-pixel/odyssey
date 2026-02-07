@@ -378,7 +378,13 @@ export default function IntroAnimation() {
                     style={{ opacity: opacityS2, pointerEvents: pointerEventsS2 }}
                 >
                     {/* S2: Background (Z-10) - sky_back */}
-                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-10" style={{ x: p2_Sky, y: 0 }}>
+                    {/* Continuous Animation: Drift Slowly */}
+                    <motion.div
+                        className="absolute inset-[-5%] w-[110%] h-[110%] z-10"
+                        style={{ x: p2_Sky, y: 0 }}
+                        animate={{ scale: [1, 1.05, 1], x: ["-2%", "2%", "-2%"] }}
+                        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+                    >
                         <img src="/assets/beach/sky_back.webp" className="w-full h-full object-cover" alt="Sky" />
                     </motion.div>
 
@@ -388,7 +394,13 @@ export default function IntroAnimation() {
                     </motion.div>
 
                     {/* S2: Mid Layer (Z-30) - sea_back */}
-                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-30" style={{ x: p2_Sea, y: 0 }}>
+                    {/* Continuous Animation: Gentle Floating (Simulate Tides) */}
+                    <motion.div
+                        className="absolute inset-[-5%] w-[110%] h-[110%] z-30"
+                        style={{ x: p2_Sea, y: 0 }}
+                        animate={{ y: ["0%", "2%", "0%"] }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                    >
                         <img src="/assets/beach/sea_back.webp" className="w-full h-full object-cover" alt="Sea" />
                     </motion.div>
 
@@ -398,26 +410,33 @@ export default function IntroAnimation() {
                     </motion.div>
 
                     {/* S2: Foreground (Z-50) - trees */}
-                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none" style={{ x: p2_Trees, y: 0 }}>
+                    {/* Continuous Animation: Subtle Sway (Simulate Wind) */}
+                    <motion.div
+                        className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none"
+                        style={{ x: p2_Trees, y: 0, transformOrigin: 'bottom center' }}
+                        animate={{ rotate: [-0.5, 0.5, -0.5] }}
+                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    >
                         <img src="/assets/beach/trees.webp" className="w-full h-full object-cover" alt="Trees" />
                     </motion.div>
 
                     {/* S2: Text (Z-60) - Kinetic Typography */}
                     {/* Position: Bottom-Right (Fix) */}
+                    {/* Adjusted Ranges: 900-1300 to ensure visibility */}
                     <motion.div
                         className="absolute inset-0 flex flex-col items-end justify-end pr-[5%] pb-[10%] z-[60] pointer-events-none text-right"
                     >
                         <div className="flex flex-col items-end">
                             <h2 className="font-serif text-5xl md:text-6xl text-white mb-4 leading-tight">
-                                <KineticText text="Space is not" scrollY={scrollY} start={1100} end={1400} className="block" />
-                                <KineticText text="static here." scrollY={scrollY} start={1200} end={1500} className="block" />
+                                <KineticText text="Space is not" scrollY={scrollY} start={900} end={1200} className="block" />
+                                <KineticText text="static here." scrollY={scrollY} start={1000} end={1300} className="block" />
                             </h2>
                             <div className="text-white/80 text-lg md:text-xl font-light tracking-wide max-w-xl italic">
                                 <KineticText
                                     text="Even time is part of the depth."
                                     scrollY={scrollY}
-                                    start={1300}
-                                    end={1600}
+                                    start={1100}
+                                    end={1400}
                                     className=""
                                 />
                             </div>
@@ -446,7 +465,7 @@ const KineticText = ({ text, scrollY, start, end, className }: { text: string, s
                 const wordEnd = wordStart + 150; // Transition duration in px
 
                 const opacity = useTransform(scrollY, [wordStart, wordEnd], [0, 1]);
-                const y = useTransform(scrollY, [wordStart, wordEnd], [30, 0]);
+                const y = useTransform(scrollY, [wordStart, wordEnd], [50, 0]); // Increased Y offset for more drama
                 const blur = useTransform(scrollY, [wordStart, wordEnd], ["blur(10px)", "blur(0px)"]);
 
                 return (
