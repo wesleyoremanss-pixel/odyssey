@@ -39,9 +39,9 @@ export default function ClientHome() {
         <Culture /> 
         */}
 
-        <footer className="py-20 text-center text-neutral-500 text-sm relative z-20 bg-black">
+        {/* <footer className="py-20 text-center text-neutral-500 text-sm relative z-20 bg-black">
           <p>© 2026 Esat Can Travel. Winter Edition.</p>
-        </footer>
+        </footer> */}
       </div>
     </main>
   );
