@@ -35,14 +35,17 @@ export default function IntroAnimation() {
 
     // Phase 1: Visual Degradation (Blur + Contrast Drop + Cool Color)
     // Starts fading OUT visually around 800px, fully gone by 1200px
-    const opacityS1 = useTransform(scrollY, [800, 1200], [1, 0]);
-    const blurS1 = useTransform(scrollY, [800, 1200], ["blur(0px)", "blur(10px)"]);
-    const contrastS1 = useTransform(scrollY, [800, 1200], ["contrast(100%)", "contrast(80%)"]);
-    const scaleS1 = useTransform(scrollY, [800, 1200], [1, 1.05]); // "Nefes alır gibi genişler"
+    const opacityS1 = useTransform(scrollY, [800, 1150], [1, 0]);
+    const blurS1 = useTransform(scrollY, [800, 1150], ["blur(0px)", "blur(10px)"]);
+    const contrastS1 = useTransform(scrollY, [800, 1150], ["contrast(100%)", "contrast(80%)"]);
+    const scaleS1 = useTransform(scrollY, [800, 1150], [1, 1.05]); // "Nefes alır gibi genişler"
+
+    // Explicitly hide Phase 1 when scrolled past 1200px to prevent ghosting
+    const displayS1 = useTransform(scrollY, (y) => y > 1200 ? 'none' : 'block');
 
     // Phase 2: Visual Emergence
-    // Starts fading IN around 800px, fully visible by 1200px
-    const opacityS2 = useTransform(scrollY, [800, 1200], [0, 1]);
+    // Starts fading IN earlier (700px), fully visible by 1100px so it's ready when text starts
+    const opacityS2 = useTransform(scrollY, [700, 1100], [0, 1]);
 
     // Phase 1 Text Logic (Staggered Fade Out)
     // 1. "Travel deeper" (Main Title) -> Fades out fast (0-300px)
@@ -272,7 +275,8 @@ export default function IntroAnimation() {
                         opacity: opacityS1,
                         pointerEvents: pointerEventsS1,
                         filter: blurS1,  // Applies blur + contrast drop
-                        scale: scaleS1   // Subtle breathing expansion
+                        scale: scaleS1,   // Subtle breathing expansion
+                        display: displayS1 // Force hide when out of view
                     }}
                 >
                     {/* Background Color */}
@@ -378,13 +382,7 @@ export default function IntroAnimation() {
                     style={{ opacity: opacityS2, pointerEvents: pointerEventsS2 }}
                 >
                     {/* S2: Background (Z-10) - sky_back */}
-                    {/* Continuous Animation: Drift Slowly */}
-                    <motion.div
-                        className="absolute inset-[-5%] w-[110%] h-[110%] z-10"
-                        style={{ x: p2_Sky, y: 0 }}
-                        animate={{ scale: [1, 1.05, 1], x: ["-2%", "2%", "-2%"] }}
-                        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-                    >
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-10" style={{ x: p2_Sky, y: 0 }}>
                         <img src="/assets/beach/sky_back.webp" className="w-full h-full object-cover" alt="Sky" />
                     </motion.div>
 
@@ -394,13 +392,7 @@ export default function IntroAnimation() {
                     </motion.div>
 
                     {/* S2: Mid Layer (Z-30) - sea_back */}
-                    {/* Continuous Animation: Gentle Floating (Simulate Tides) */}
-                    <motion.div
-                        className="absolute inset-[-5%] w-[110%] h-[110%] z-30"
-                        style={{ x: p2_Sea, y: 0 }}
-                        animate={{ y: ["0%", "2%", "0%"] }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                    >
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-30" style={{ x: p2_Sea, y: 0 }}>
                         <img src="/assets/beach/sea_back.webp" className="w-full h-full object-cover" alt="Sea" />
                     </motion.div>
 
@@ -410,40 +402,32 @@ export default function IntroAnimation() {
                     </motion.div>
 
                     {/* S2: Foreground (Z-50) - trees */}
-                    {/* Continuous Animation: Subtle Sway (Simulate Wind) */}
-                    <motion.div
-                        className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none"
-                        style={{ x: p2_Trees, y: 0, transformOrigin: 'bottom center' }}
-                        animate={{ rotate: [-0.5, 0.5, -0.5] }}
-                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                    >
+                    <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-50 pointer-events-none" style={{ x: p2_Trees, y: 0 }}>
                         <img src="/assets/beach/trees.webp" className="w-full h-full object-cover" alt="Trees" />
                     </motion.div>
 
                     {/* S2: Text (Z-60) - Kinetic Typography */}
                     {/* Position: Bottom-Right (Fix) */}
-                    {/* Adjusted Ranges: 900-1300 to ensure visibility */}
                     <motion.div
                         className="absolute inset-0 flex flex-col items-end justify-end pr-[5%] pb-[10%] z-[60] pointer-events-none text-right"
                     >
                         <div className="flex flex-col items-end">
                             <h2 className="font-serif text-5xl md:text-6xl text-white mb-4 leading-tight">
-                                <KineticText text="Space is not" scrollY={scrollY} start={900} end={1200} className="block" />
-                                <KineticText text="static here." scrollY={scrollY} start={1000} end={1300} className="block" />
+                                <KineticText text="Space is not" scrollY={scrollY} start={900} end={1400} className="block" />
+                                <KineticText text="static here." scrollY={scrollY} start={1000} end={1500} className="block" />
                             </h2>
                             <div className="text-white/80 text-lg md:text-xl font-light tracking-wide max-w-xl italic">
                                 <KineticText
                                     text="Even time is part of the depth."
                                     scrollY={scrollY}
                                     start={1100}
-                                    end={1400}
+                                    end={1600}
                                     className=""
                                 />
                             </div>
                         </div>
                     </motion.div>
                 </motion.div>
-
             </div>
 
             {/* Scroll Spacer - Controls the speed of the intro animation */}
@@ -452,21 +436,23 @@ export default function IntroAnimation() {
     );
 }
 
-// Kinetic Text Component (Shopify Editions Style)
-// Splits text into words and animates them individually based on scroll
+// Kinetic Text Component
+// Simplified to ensure visibility
 const KineticText = ({ text, scrollY, start, end, className }: { text: string, scrollY: MotionValue<number>, start: number, end: number, className?: string }) => {
     const words = text.split(" ");
     return (
         <span className={className}>
             {words.map((word, i) => {
-                // Stagger each word slightly within the range
-                const step = (end - start) / (words.length + 2);
+                // Simplified Stagger:
+                // Start a bit staggered, but ensure sufficient overlap
+                const step = 50;
                 const wordStart = start + (i * step);
-                const wordEnd = wordStart + 150; // Transition duration in px
+                // Make the transition quick but the hold long
+                const wordEnd = wordStart + 200;
 
                 const opacity = useTransform(scrollY, [wordStart, wordEnd], [0, 1]);
-                const y = useTransform(scrollY, [wordStart, wordEnd], [50, 0]); // Increased Y offset for more drama
-                const blur = useTransform(scrollY, [wordStart, wordEnd], ["blur(10px)", "blur(0px)"]);
+                const y = useTransform(scrollY, [wordStart, wordEnd], [40, 0]);
+                const blur = useTransform(scrollY, [wordStart, wordEnd], ["blur(8px)", "blur(0px)"]);
 
                 return (
                     <motion.span
