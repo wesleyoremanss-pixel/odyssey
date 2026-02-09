@@ -7,16 +7,15 @@ import * as THREE from 'three';
 
 export function Gate3D(props: any) {
     const group = useRef<THREE.Group>(null);
-    // Placeholder for missing modal, using a simple box if model fails or strictly for logic
-    // If we don't have the asset, this might crash if we try to load it. 
-    // Safest is to render a placeholder mesh
 
     return (
+        // @ts-ignore - R3F types mismatch with React 19
         <group ref={group} {...props} dispose={null}>
             <mesh>
                 <boxGeometry args={[1, 1, 1]} />
                 <meshStandardMaterial color="orange" />
             </mesh>
+            {/* @ts-ignore */}
         </group>
     );
 }
