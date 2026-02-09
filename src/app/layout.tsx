@@ -1,14 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Italiana, Cormorant_Garamond } from "next/font/google"; // Import fonts
+import { Inter, Italiana, Cormorant_Garamond } from "next/font/google"; // Import standard Inter font
 import "./globals.css";
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
+const inter = Inter({
+    variable: "--font-inter",
     subsets: ["latin"],
 });
 
@@ -39,7 +34,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${geistSans.variable} ${geistMono.variable} ${italiana.variable} ${cormorant.variable} antialiased`}
+                className={`${inter.variable} ${italiana.variable} ${cormorant.variable} antialiased`}
             >
                 {children}
             </body>
