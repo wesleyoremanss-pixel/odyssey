@@ -26,7 +26,7 @@ export function Gate3D({ mouse, isMobile }: { mouse: { x: MotionValue<number>, y
             <primitive
                 object={scene}
                 scale={isMobile ? 1.5 : 2}
-                position={[0, -2, 0]}
+                position={[0, -3.5, 0]}
                 rotation={[0, 0, 0]}
             />
         </group>

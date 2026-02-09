@@ -36,7 +36,7 @@ export default function IntroAnimation() {
     // Phase 1: Visual Degradation (Blur + Contrast Drop + Fade Out)
     const opacityS1 = useTransform(scrollY, [800, 1150], [1, 0]);
     const blurS1 = useTransform(scrollY, [800, 1150], ["blur(0px)", "blur(10px)"]);
-    const scaleS1 = useTransform(scrollY, [800, 1150], [1, 1.05]); 
+    const scaleS1 = useTransform(scrollY, [800, 1150], [1, 1.05]);
     // Hide Phase 1 completely after transition to prevent ghosting
     const displayS1 = useTransform(scrollY, (y) => y > 1200 ? 'none' : 'block');
 
@@ -63,7 +63,7 @@ export default function IntroAnimation() {
     // PHASE 2 PARALLAX LOGIC (OBSIDIAN SHORE)
     // ---------------------------------------------------------
     // Scroll Mapping: 1200px (Start) -> 2500px (End of Section)
-    
+
     // Sand Base: Moves slowly upwards (yPercent: 10 equivalent)
     // Translating Y from 0% to -5% (Visual drift)
     const ySand = useTransform(scrollY, [1200, 2500], ["0%", "-5%"]);
@@ -71,7 +71,7 @@ export default function IntroAnimation() {
     // Water Overlay: Moves faster upwards (yPercent: -20 equivalent)
     // Translating Y from 0% to -15% (Gliding effect)
     const yWater = useTransform(scrollY, [1200, 2500], ["0%", "-15%"]);
-    
+
     // Water Scale: Subtle zoom (1 -> 1.1)
     const scaleWater = useTransform(scrollY, [1200, 2500], [1, 1.1]);
 
@@ -261,18 +261,18 @@ export default function IntroAnimation() {
             {/* SCENE COMPOSITOR (Fixed Container)                                       */}
             {/* ======================================================================== */}
             <div className="fixed inset-0 w-full h-screen overflow-hidden pointer-events-none">
-                
+
                 {/* ------------------------------------------------------------------ */}
                 {/* SCENE 1: THE GATE (Phase 1)                                        */}
                 {/* ------------------------------------------------------------------ */}
-                <motion.div 
+                <motion.div
                     className="absolute inset-0 w-full h-full"
-                    style={{ 
-                        opacity: opacityS1, 
+                    style={{
+                        opacity: opacityS1,
                         pointerEvents: pointerEventsS1,
                         filter: blurS1,
-                        scale: scaleS1, 
-                        display: displayS1 
+                        scale: scaleS1,
+                        display: displayS1
                     }}
                 >
                     <div className="absolute inset-0 -z-[10] bg-[#050505]" />
@@ -295,7 +295,7 @@ export default function IntroAnimation() {
                             style={{ x: "-50%", y: "-50%" }}
                         />
                     </motion.div>
-                    { !loading && (
+                    {!loading && (
                         <motion.div className="absolute inset-[-5%] w-[110%] h-[110%] z-40" style={{ x: xGate, y: yGate }}>
                             <Scene3D zIndex={40} mouse={{ x: springX, y: springY }} isMobile={isMobile} />
                         </motion.div>
@@ -327,54 +327,55 @@ export default function IntroAnimation() {
                 {/* SCENE 2: THE OBSIDIAN SHORE (Phase 2)                              */}
                 {/* ------------------------------------------------------------------ */}
                 {/* Split Screen Layout */}
-                <motion.div 
-                    className="absolute inset-0 w-full h-full flex flex-col md:flex-row bg-[#050505]"
+                <motion.div
+                    className="absolute inset-0 w-full h-full flex flex-col md:flex-row bg-[#050505] z-50"
                     style={{ opacity: opacityS2, pointerEvents: pointerEventsS2 }}
                 >
                     {/* LEFT PANEL: VISUALS (50%) */}
                     <div className="w-full md:w-1/2 h-[50vh] md:h-full relative overflow-hidden bg-black">
                         {/* Sand Base (Bottom Layer) - Parallax Slow */}
-                        <motion.div 
-                            className="absolute inset-0 w-full h-full z-10"
+                        <motion.div
+                            className="absolute inset-0 w-full h-full z-10 scale-110"
                             style={{ y: ySand }}
                         >
-                            <img 
-                                src="/assets/beach/sand_base.webp" 
-                                className="w-full h-full object-cover" 
-                                alt="Obsidian Sand" 
+                            <img
+                                src="/assets/beach/sand_base.webp"
+                                className="w-full h-full object-cover"
+                                alt="Obsidian Sand"
                             />
                         </motion.div>
 
                         {/* Water Overlay (Top Layer) - Parallax Fast + Zoom */}
-                        <motion.div 
-                            className="absolute inset-0 w-full h-full z-20 mix-blend-screen opacity-90"
+                        <motion.div
+                            className="absolute inset-0 w-full h-full z-20 mix-blend-screen opacity-100"
                             style={{ y: yWater, scale: scaleWater }}
                         >
-                            <img 
-                                src="/assets/beach/water_overlay.webp" 
-                                className="w-full h-full object-cover" 
-                                alt="Azure Tide" 
+                            <img
+                                src="/assets/beach/water_overlay.webp"
+                                className="w-full h-full object-cover"
+                                alt="Azure Tide"
                             />
                         </motion.div>
-                        
+
                         {/* Overlay Gradient for Text Readability if needed (Subtle) */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-30 pointer-events-none mix-blend-overlay" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-30 pointer-events-none mix-blend-overlay" />
                     </div>
 
                     {/* RIGHT PANEL: TYPOGRAPHY (50%) */}
-                    <div className="w-full md:w-1/2 h-[50vh] md:h-full bg-[#f8f5f2] flex flex-col justify-center items-center md:items-start p-10 md:p-20 text-center md:text-left z-40">
-                         <motion.div 
+                    <div className="w-full md:w-1/2 h-[50vh] md:h-full bg-[#f8f5f2] flex flex-col justify-center items-center md:items-start p-10 md:p-20 text-center md:text-left z-40 relative">
+                        <div className="absolute inset-0 bg-[#f8f5f2] z-0" /> {/* Ensure solid background behind text */}
+                        <motion.div
                             style={{ y: textRevealY, opacity: textRevealOpacity }}
-                            className="flex flex-col gap-6"
-                         >
+                            className="flex flex-col gap-6 z-10"
+                        >
                             <h2 className="font-serif text-5xl md:text-7xl text-[#1a1a1a] leading-[1.1] tracking-widest font-bold">
-                                THE <br/> OBSIDIAN <br/> SHORE
+                                THE <br /> OBSIDIAN <br /> SHORE
                             </h2>
                             <div className="w-12 h-[1px] bg-[#1a1a1a]/20 mx-auto md:mx-0" />
                             <p className="font-sans text-[#1a1a1a]/60 text-sm md:text-base tracking-widest uppercase">
                                 Where volcanic ash meets the azure tide
                             </p>
-                         </motion.div>
+                        </motion.div>
                     </div>
 
                 </motion.div>
@@ -392,15 +393,15 @@ const LogoAnimator = ({ loading, progress, isMobile }: { loading: boolean, progr
     const generateKeyframes = () => {
         let css = `@keyframes logoLoop {`;
         const totalFrames = 39;
-        const totalSteps = (totalFrames * 2) - 2; 
+        const totalSteps = (totalFrames * 2) - 2;
 
         for (let step = 0; step <= totalSteps; step++) {
             const percentage = (step / totalSteps) * 100;
             let frame;
             if (step < totalFrames) {
-                frame = step + 1; 
+                frame = step + 1;
             } else {
-                frame = totalFrames - (step - totalFrames) - 1; 
+                frame = totalFrames - (step - totalFrames) - 1;
             }
             if (frame < 1) frame = 1;
 
