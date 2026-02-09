@@ -328,14 +328,14 @@ export default function IntroAnimation() {
                 {/* ------------------------------------------------------------------ */}
                 {/* Split Screen Layout */}
                 <motion.div
-                    className="absolute inset-0 w-full h-full flex flex-col md:flex-row bg-[#050505] z-50"
+                    className="absolute inset-0 w-full h-full flex flex-col md:flex-row bg-[#000000] z-[100]"
                     style={{ opacity: opacityS2, pointerEvents: pointerEventsS2 }}
                 >
                     {/* LEFT PANEL: VISUALS (50%) */}
                     <div className="w-full md:w-1/2 h-[50vh] md:h-full relative overflow-hidden bg-black">
                         {/* Sand Base (Bottom Layer) - Parallax Slow */}
                         <motion.div
-                            className="absolute inset-0 w-full h-full z-10 scale-110"
+                            className="absolute inset-[-10%] w-[120%] h-[120%] z-10"
                             style={{ y: ySand }}
                         >
                             <img
@@ -345,10 +345,19 @@ export default function IntroAnimation() {
                             />
                         </motion.div>
 
-                        {/* Water Overlay (Top Layer) - Parallax Fast + Zoom */}
+                        {/* Water Overlay (Top Layer) - Parallax Fast + Zoom + Continuous Sway */}
                         <motion.div
-                            className="absolute inset-0 w-full h-full z-20 mix-blend-screen opacity-100"
+                            className="absolute inset-[-10%] w-[120%] h-[120%] z-20 mix-blend-screen opacity-100"
                             style={{ y: yWater, scale: scaleWater }}
+                            animate={{
+                                x: ["-1%", "1%", "-1%"],
+                                scale: [1, 1.05, 1]
+                            }}
+                            transition={{
+                                duration: 8,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
                         >
                             <img
                                 src="/assets/beach/water_overlay.webp"
@@ -358,7 +367,7 @@ export default function IntroAnimation() {
                         </motion.div>
 
                         {/* Overlay Gradient for Text Readability if needed (Subtle) */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-30 pointer-events-none mix-blend-overlay" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-30 pointer-events-none" />
                     </div>
 
                     {/* RIGHT PANEL: TYPOGRAPHY (50%) */}
