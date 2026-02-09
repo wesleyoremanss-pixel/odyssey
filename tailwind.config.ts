@@ -13,9 +13,9 @@ const config: Config = {
                 foreground: "var(--foreground)",
             },
             fontFamily: {
-                sans: ["var(--font-geist-sans)"],
-                mono: ["var(--font-geist-mono)"],
+                sans: ["var(--font-inter)"],
                 serif: ["var(--font-italiana)"],
+                cormorant: ["var(--font-cormorant)"],
             },
         },
     },
